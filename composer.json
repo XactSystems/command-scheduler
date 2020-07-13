@@ -23,6 +23,9 @@
     "minimum-stability": "dev",
     "require": {
         "php": "^7.0",
+        "doctrine/orm": "~2.7",
+        "doctrine/dbal": "~2.10",
+        "symfony/monolog-bundle": "~3.5",
         "enqueue/enqueue-bundle": "*"
     },
     "require-dev": {

@@ -8,9 +8,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\Client\CommandSubscriberInterface;
 use Enqueue\Consumption\Result;
 use Enqueue\Util\JSON;
-use Interop\Queue\PsrContext;
-use Interop\Queue\PsrMessage;
-use Interop\Queue\PsrProcessor;
+use Interop\Queue\Context;
+use Interop\Queue\Message;
+use Interop\Queue\Processor;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -19,7 +19,7 @@ use Symfony\Component\Process\Process;
  *
  * @see https://github.com/php-enqueue/enqueue-dev/issues/213
  */
-class RunCommandProcessor implements PsrProcessor, CommandSubscriberInterface
+class RunCommandProcessor implements Processor, CommandSubscriberInterface
 {
     const COMMAND_NAME = 'run_command';
 
@@ -51,7 +51,7 @@ class RunCommandProcessor implements PsrProcessor, CommandSubscriberInterface
      * @param PsrContext $context
      * @return Result|object|string
      */
-    public function process(PsrMessage $message, PsrContext $context)
+    public function process(Message $message, Context $context)
     {
         $body = JSON::decode($message->getBody());
 
