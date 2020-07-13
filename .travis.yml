@@ -26,16 +26,13 @@ matrix:
 
 before_install:
     - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
-    - composer create-project symfony/website-skeleton:$SYMFONY symfony
-    - cd symfony
     # Does not work for private repos, needs SSH key or other auth
-    - composer config repositories.xactsystems vcs https://github.com/XactSystems/js-routing-bundle.git --no-interaction
-    - composer require xactsystems/js-routing-bundle:3.4.x-dev --no-interaction  --prefer-dist
+    - composer config repositories.xactsystems vcs https://github.com/XactSystems/job-scheduler.git --no-interaction
+    - composer require xactsystems/job-scheduler --no-interaction  --prefer-dist
 
 install:
     # Hack required until https://github.com/symfony/recipes/issues/639 is fixed
-    - cp -pf vendor/xactsystems/js-routing-bundle/monolog.yaml ./config/packages/test/
-    - cp -p vendor/xactsystems/js-routing-bundle/phpunit.xml.dist .
+    - cp -p vendor/xactsystems/job-scheduler/phpunit.xml.dist .
     - ./vendor/bin/simple-phpunit install
 
 script:

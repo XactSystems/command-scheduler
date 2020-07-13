@@ -16,8 +16,8 @@
     </php>
 
     <testsuites>
-        <testsuite name="js-routing-bundle Test Suite">
-            <directory>vendor/xactsystems/js-routing-bundle/Tests</directory>
+        <testsuite name="xactsystems/job-scheduler Test Suite">
+            <directory>vendor/xactsystems/job-scheduler/Tests</directory>
         </testsuite>
     </testsuites>
 
