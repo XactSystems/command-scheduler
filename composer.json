@@ -1,0 +1,31 @@
+{
+    "name": "xactsystems/job-scheduler",
+    "description": "A job scheduler using php-enqueue as queue mechanism.",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "version": "v3.4.0-dev",
+    "authors": [
+        {
+            "name": "Ian Foulds",
+            "email": "ianfoulds@x-act.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Xact\\JobScheduler\\": ""
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Xact\\JobScheduler\\Tests\\": "Tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.0",
+        "enqueue/enqueue-bundle": "*"
+    },
+    "require-dev": {
+        "symfony/test-pack": "*"
+    }
+}

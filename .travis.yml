@@ -1,0 +1,44 @@
+language: php
+sudo: false
+cache:
+    directories:
+        - $HOME/.composer/cache/files
+        - $HOME/symfony-bridge/.phpunit
+
+        
+git:
+  clone: false
+
+env:
+    global:
+        - PHPUNIT_FLAGS="-v"
+        - SYMFONY_PHPUNIT_DIR="$HOME/symfony-bridge/.phpunit"
+        - COMPOSER_MEMORY_LIMIT=-1
+
+matrix:
+    fast_finish: true
+    include:
+          # Test the 3.4 LTS release
+        - php: 7.2
+          env: SYMFONY="3.4.*"
+        - php: 7.3
+          env: SYMFONY="3.4.*"
+
+before_install:
+    - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
+    - composer create-project symfony/website-skeleton:$SYMFONY symfony
+    - cd symfony
+    # Does not work for private repos, needs SSH key or other auth
+    - composer config repositories.xactsystems vcs https://github.com/XactSystems/js-routing-bundle.git --no-interaction
+    - composer require xactsystems/js-routing-bundle:3.4.x-dev --no-interaction  --prefer-dist
+
+install:
+    # Hack required until https://github.com/symfony/recipes/issues/639 is fixed
+    - cp -pf vendor/xactsystems/js-routing-bundle/monolog.yaml ./config/packages/test/
+    - cp -p vendor/xactsystems/js-routing-bundle/phpunit.xml.dist .
+    - ./vendor/bin/simple-phpunit install
+
+script:
+    # simple-phpunit is the PHPUnit wrapper provided by the PHPUnit Bridge component and
+    # it helps with testing legacy code and deprecations (composer require symfony/phpunit-bridge)
+    - ./vendor/bin/simple-phpunit $PHPUNIT_FLAGS
