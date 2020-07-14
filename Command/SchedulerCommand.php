@@ -3,12 +3,12 @@
 namespace Xact\CommandScheduler\Command;
 
 use Cron\CronExpression;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\Client\ProducerInterface;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
@@ -25,7 +25,7 @@ class SchedulerCommand extends ContainerAwareCommand
     protected static $defaultName = 'xact:command-scheduler';
 
     /**
-     * @var EntityManagerInterface|EntityManager
+     * @var \Doctrine\ORM\EntityManagerInterface
      */
     private $em;
 
@@ -159,6 +159,11 @@ class SchedulerCommand extends ContainerAwareCommand
                 break;
             }
         }
+
+        /*
+        * Clear the EntityManager to avoid conflict between commands and make sure no entities are managed
+        */
+        $this->em->clear();
     }
 
     protected function executeCommand(ScheduledCommand $scheduledCommand)
@@ -191,6 +196,9 @@ class SchedulerCommand extends ContainerAwareCommand
             );
             $result = $command->run($input, $output);
             $resultText = 'The command completed successfully';
+        } catch (CommandNotFoundException $e) {
+            $resultText = $e->getMessage();
+            $this->output->writeln("<error>{$e->getMessage()}</error>");
         } catch (\Exception $e) {
             $resultText = $e->getMessage();
             $this->output->writeln("<error>{$e->getMessage()}</error>");
@@ -206,11 +214,6 @@ class SchedulerCommand extends ContainerAwareCommand
             $scheduledCommand->setLastResultCode($result);
             $scheduledCommand->setLastResult($resultText);
             $this->em->flush();
-
-            /*
-            * Clear the EntityManager to avoid conflict between commands and make sure no entities are managed
-            */
-            $this->em->clear();
 
             unset($command);
         }
