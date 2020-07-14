@@ -1,12 +1,12 @@
 <?php
 
-namespace Xact\XactJobScheduler;
+namespace Xact\JobScheduler;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * Xact job scheduler bundle
  */
-class XactJobSchedulerBundle extends Bundle
+class XactCommandSchedulerBundle extends Bundle
 {
 }

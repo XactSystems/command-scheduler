@@ -9,56 +9,64 @@ use Doctrine\ORM\Mapping as ORM;
  * ScheduledCommand
  *
  * @ORM\Table(name="ScheduledCommand")
- * @ORM\Entity(repositoryClass="App\Entity\Repository\ScheduledCommandRepository")
+ * @ORM\Entity
  */
 class ScheduledCommand
 {
     //... Fields ...
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(name="ID", type="string")
      * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      *
      * @var string
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(name="Command", type="string")
      *
      * @var string
      */
     private $command;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\Column(name="Arguments", type="string", nullable=true)
      *
-     * @var array
+     * @var string
      */
-    private $options;
+    private $arguments;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="Frequency", type="integer")
      *
      * @var integer
      */
     private $frequency;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(name="Disabled", type="boolean")
+     *
+     * @var bool
+     */
+    private $disabled;
+
+    /**
+     * @ORM\Column(name="LastTriggeredAt", type="datetime", nullable=true)
      *
      * @var \DateTime|null
      */
     private $lastTriggeredAt;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
      *
      * @var \DateTime|null
      */
     private $lastRunAt;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(name="LastResult", type="text", nullable=true)
      *
      * @var string
      */
@@ -103,20 +111,20 @@ class ScheduledCommand
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getOptions(): ?array
+    public function getArguments(): ?string
     {
-        return $this->options;
+        return $this->arguments;
     }
 
     /**
-     * @param array $options
+     * @param string $arguments
      * @return ScheduledCommand
      */
-    public function setOptions(?array $options): ScheduledCommand
+    public function setArguments(?string $arguments): ScheduledCommand
     {
-        $this->options = $options;
+        $this->arguments = $arguments;
 
         return $this;
     }
@@ -136,6 +144,25 @@ class ScheduledCommand
     public function setFrequency(int $frequency): ScheduledCommand
     {
         $this->frequency = $frequency;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDisabled(): bool
+    {
+        return $this->disabled;
+    }
+
+    /**
+     * @param int $disabled
+     * @return ScheduledCommand
+     */
+    public function setDisabled(bool $disabled): ScheduledCommand
+    {
+        $this->disabled = $disabled;
 
         return $this;
     }
