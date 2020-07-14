@@ -25,7 +25,8 @@
         "php": "^7.0",
         "doctrine/orm": "~2.7",
         "doctrine/dbal": "~2.10",
-        "symfony/monolog-bundle": "~3.5"
+        "symfony/monolog-bundle": "~3.5",
+        "adhocore/cron-expr": "~1.1"
     },
     "require-dev": {
         "symfony/test-pack": "*"

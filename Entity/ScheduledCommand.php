@@ -15,11 +15,11 @@ class ScheduledCommand
 {
     //... Fields ...
     /**
-     * @ORM\Column(name="ID", type="string")
+     * @ORM\Column(name="ID", type="bigint")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\GeneratedValue(strategy="AUTO")
      *
-     * @var string
+     * @var int
      */
     private $id;
 
@@ -38,25 +38,18 @@ class ScheduledCommand
     private $arguments;
 
     /**
-     * @ORM\Column(name="Frequency", type="integer")
+     * @ORM\Column(name="CronExpression", type="string")
      *
-     * @var integer
+     * @var string
      */
-    private $frequency;
+    private $cronExpression;
 
     /**
      * @ORM\Column(name="Disabled", type="boolean")
      *
      * @var bool
      */
-    private $disabled;
-
-    /**
-     * @ORM\Column(name="LastTriggeredAt", type="datetime", nullable=true)
-     *
-     * @var \DateTime|null
-     */
-    private $lastTriggeredAt;
+    private $disabled = false;
 
     /**
      * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
@@ -66,6 +59,13 @@ class ScheduledCommand
     private $lastRunAt;
 
     /**
+     * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
+     *
+     * @var integer
+     */
+    private $lastResultCode;
+
+    /**
      * @ORM\Column(name="LastResult", type="text", nullable=true)
      *
      * @var string
@@ -73,18 +73,18 @@ class ScheduledCommand
     private $lastResult;
 
     /**
-     * @return string
+     * @return int
      */
-    public function getId(): string
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param string $id
+     * @param int $id
      * @return ScheduledCommand
      */
-    public function setId(string $id): ScheduledCommand
+    public function setId(int $id): ScheduledCommand
     {
         $this->id = $id;
 
@@ -130,20 +130,20 @@ class ScheduledCommand
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getFrequency(): int
+    public function getCronExpression(): ?string
     {
-        return $this->frequency;
+        return $this->cronExpression;
     }
 
     /**
-     * @param int $frequency
+     * @param string $cronExpression
      * @return ScheduledCommand
      */
-    public function setFrequency(int $frequency): ScheduledCommand
+    public function setCronExpression(?string $cronExpression): ScheduledCommand
     {
-        $this->frequency = $frequency;
+        $this->cronExpression = $cronExpression;
 
         return $this;
     }
@@ -168,6 +168,25 @@ class ScheduledCommand
     }
 
     /**
+     * @return int
+     */
+    public function getLastResultCode(): int
+    {
+        return $this->lastResultCode;
+    }
+
+    /**
+     * @param string $lastResultCode
+     * @return ScheduledCommand
+     */
+    public function setLastResultCode(int $lastResultCode): ScheduledCommand
+    {
+        $this->lastResultCode = $lastResultCode;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getLastResult(): string
@@ -182,25 +201,6 @@ class ScheduledCommand
     public function setLastResult(string $lastResult): ScheduledCommand
     {
         $this->lastResult = $lastResult;
-
-        return $this;
-    }
-
-    /**
-     * @return \DateTime|null
-     */
-    public function getLastTriggeredAt(): ?\DateTime
-    {
-        return $this->lastTriggeredAt;
-    }
-
-    /**
-     * @param \DateTime|null $lastTriggeredAt
-     * @return ScheduledCommand
-     */
-    public function setLastTriggeredAt(?\DateTime $lastTriggeredAt): ScheduledCommand
-    {
-        $this->lastTriggeredAt = $lastTriggeredAt;
 
         return $this;
     }

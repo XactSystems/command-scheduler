@@ -2,6 +2,7 @@
 
 namespace Xact\CommandScheduler\Command;
 
+use Ahc\Cron\Expression as CronExpression;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\Client\ProducerInterface;
@@ -16,7 +17,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 
-class CommandSchedulerCommand extends ContainerAwareCommand
+class SchedulerCommand extends ContainerAwareCommand
 {
     /**
      * @var string
@@ -24,14 +25,9 @@ class CommandSchedulerCommand extends ContainerAwareCommand
     protected static $defaultName = 'xact:command-scheduler';
 
     /**
-     * @var ProducerInterface
-     */
-    private $enqueueProducer;
-
-    /**
      * @var EntityManagerInterface|EntityManager
      */
-    private $entityManager;
+    private $em;
 
     /**
      * @var \Psr\Log\LoggerInterface
@@ -64,12 +60,11 @@ class CommandSchedulerCommand extends ContainerAwareCommand
      * @param ProducerInterface $enqueueProducer
      * @param EntityManagerInterface $entityManager
      */
-    public function __construct(ProducerInterface $enqueueProducer, EntityManagerInterface $entityManager, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
     {
         parent::__construct(self::$defaultName);
 
-        $this->enqueueProducer = $enqueueProducer;
-        $this->entityManager = $entityManager;
+        $this->em = $em;
         $this->logger = $logger;
     }
 
@@ -79,7 +74,7 @@ class CommandSchedulerCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setDescription('Schedules commands to be executed via Enqueue events')
-            ->addOption('max-runtime', 'r', InputOption::VALUE_OPTIONAL, 'The maximum runtime in seconds.', 0)
+            ->addOption('max-runtime', 'r', InputOption::VALUE_OPTIONAL, 'The maximum runtime in seconds. 0 runs forever.', 0)
             ->addOption('idle-time', null, InputOption::VALUE_OPTIONAL, 'Seconds to sleep when the command queue is empty.', 5)
         ;
     }
@@ -93,7 +88,7 @@ class CommandSchedulerCommand extends ContainerAwareCommand
         $this->input = $input;
         $this->output = $output;
         $this->maxRuntime = (integer) $input->getOption('max-runtime');
-        if ($this->maxRuntime <= 0) {
+        if ($this->maxRuntime < 0) {
             throw new InvalidArgumentException('The maximum runtime must be greater than zero.');
         }
 
@@ -120,9 +115,7 @@ class CommandSchedulerCommand extends ContainerAwareCommand
      */
     protected function runCommands()
     {
-        if ($this->verbosity) {
-            $this->output->writeln('Running scheduled commands.');
-        }
+        $this->output->writeln('Running scheduled commands.');
 
         while (true) {
             if ($this->exceededMaxRuntime()) {
@@ -134,13 +127,7 @@ class CommandSchedulerCommand extends ContainerAwareCommand
             usleep(rand(1000, 5000));
         }
 
-        if ($this->verbosity) {
-            $this->output->writeln('The command scheduler is shutting down, waiting for current commands to terminate...');
-        }
-
-        if ($this->verbosity) {
-            $this->output->writeln('The command scheduler has terminated.');
-        }
+        $this->output->writeln('The command scheduler has terminated.');
     }
 
     /**
@@ -161,11 +148,10 @@ class CommandSchedulerCommand extends ContainerAwareCommand
     protected function processCommands()
     {
         /** @var ScheduledCommand $command */
-        foreach ($this->entityManager->getRepository(ScheduledCommand::class)->findAll() as $command) {
+        foreach ($this->em->getRepository(ScheduledCommand::class)->findBy(['disabled' => false]) as $command) {
 
-            if ($command->getLastTriggeredAt()
-                && $command->getLastTriggeredAt()->getTimestamp() + $command->getFrequency() > time()) {
-                // The command does not need to be triggered yet
+            if (!CronExpression::isDue($command->getCronExpression(), time())) {
+                // The command does not need to be run yet
                 continue;
             }
 
@@ -180,8 +166,11 @@ class CommandSchedulerCommand extends ContainerAwareCommand
     protected function executeCommand(ScheduledCommand $scheduledCommand)
     {
         try {
+            $this->em->getConnection()->beginTransaction();
+
             $scheduledCommand->setLastRunAt(new \DateTime());
             $this->em->flush();
+            
             $this->em->getConnection()->commit();
 
             $input = new StringInput(
@@ -203,7 +192,9 @@ class CommandSchedulerCommand extends ContainerAwareCommand
                 .' '.$scheduledCommand->getArguments().'</comment>'
             );
             $result = $command->run($input, $output);
+            $resultText = 'The command completed successfully';
         } catch (\Exception $e) {
+            $resultText = $e->getMessage();
             $this->output->writeln("<error>{$e->getMessage()}</error>");
             $this->output->writeln("<error>{$e->getTraceAsString()}</error>");
             $result = -1;
@@ -213,7 +204,8 @@ class CommandSchedulerCommand extends ContainerAwareCommand
                 $this->em = $this->em->create($this->em->getConnection(), $this->em->getConfiguration());
             }
 
-            $scheduledCommand->setLastResult($result);
+            $scheduledCommand->setLastResultCode($result);
+            $scheduledCommand->setLastResult($resultText);
             $this->em->flush();
 
             /*
