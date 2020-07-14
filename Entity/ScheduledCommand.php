@@ -52,6 +52,13 @@ class ScheduledCommand
     private $disabled = false;
 
     /**
+     * @ORM\Column(name="RunImmediately", type="boolean")
+     *
+     * @var bool
+     */
+    private $runImmediately = false;
+
+    /**
      * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
      *
      * @var \DateTime|null
@@ -149,7 +156,7 @@ class ScheduledCommand
     }
 
     /**
-     * @return int
+     * @return bool
      */
     public function getDisabled(): bool
     {
@@ -157,12 +164,31 @@ class ScheduledCommand
     }
 
     /**
-     * @param int $disabled
+     * @param bool $disabled
      * @return ScheduledCommand
      */
     public function setDisabled(bool $disabled): ScheduledCommand
     {
-        $this->disabled = $disabled;
+        $this->run = $disabled;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getRunImmediately(): bool
+    {
+        return $this->runImmediately;
+    }
+
+    /**
+     * @param bool $runImmediately
+     * @return ScheduledCommand
+     */
+    public function setRunImmediately(bool $runImmediately): ScheduledCommand
+    {
+        $this->runImmediately = $runImmediately;
 
         return $this;
     }

@@ -2,7 +2,7 @@
 
 namespace Xact\CommandScheduler\Command;
 
-use Cron\CronExpression as CronExpression;
+use Cron\CronExpression;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\Client\ProducerInterface;
@@ -151,7 +151,7 @@ class SchedulerCommand extends ContainerAwareCommand
         foreach ($this->em->getRepository(ScheduledCommand::class)->findBy(['disabled' => false]) as $command) {
 
             $cron = CronExpression::factory($command->getCronExpression());
-            if (($command->getLastRunAt() === null || $command->getLastRunAt() < $cron->getPreviousRunDate()) && $cron->getPreviousRunDate() <= new \DateTime()) {
+            if ($command->getRunImmediately() || $cron->getNextRunDate($command->getLastRunAt()) <= new \DateTime()) {
                 $this->executeCommand($command);
             }
 
@@ -202,6 +202,7 @@ class SchedulerCommand extends ContainerAwareCommand
                 $this->em = $this->em->create($this->em->getConnection(), $this->em->getConfiguration());
             }
 
+            $scheduledCommand->setRunImmediately(false);
             $scheduledCommand->setLastResultCode($result);
             $scheduledCommand->setLastResult($resultText);
             $this->em->flush();
