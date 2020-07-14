@@ -124,7 +124,7 @@ class SchedulerCommand extends ContainerAwareCommand
 
             $this->processCommands();
 
-            usleep(rand(1000, 5000));
+            usleep(rand(500, 1000) * 1E3);
         }
 
         $this->output->writeln('The command scheduler has terminated.');
@@ -150,13 +150,10 @@ class SchedulerCommand extends ContainerAwareCommand
         /** @var ScheduledCommand $command */
         foreach ($this->em->getRepository(ScheduledCommand::class)->findBy(['disabled' => false]) as $command) {
 
-            $cron = Cron\CronExpression::factory($command->getCronExpression());
-            if ($cron->getPreviousRunDate() <= new \DateTime() && $cron->getPreviousRunDate() > $command->getLastRunAt()) {
-                // The command does not need to be run yet
-                continue;
+            $cron = CronExpression::factory($command->getCronExpression());
+            if (($command->getLastRunAt() === null || $command->getLastRunAt() < $cron->getPreviousRunDate()) && $cron->getPreviousRunDate() <= new \DateTime()) {
+                $this->executeCommand($command);
             }
-
-            $this->executeCommand($command);
 
             if ($this->exceededMaxRuntime()) {
                 break;
