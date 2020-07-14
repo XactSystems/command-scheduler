@@ -1,6 +1,6 @@
 <?php
 
-namespace Xact\JobScheduler;
+namespace Xact\CommandScheduler;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

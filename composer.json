@@ -12,12 +12,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Xact\\JobScheduler\\": ""
+            "Xact\\CommandScheduler\\": ""
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Xact\\JobScheduler\\Tests\\": "Tests/"
+            "Xact\\CommandScheduler\\Tests\\": "Tests/"
         }
     },
     "minimum-stability": "dev",

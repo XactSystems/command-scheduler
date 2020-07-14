@@ -1,11 +1,11 @@
-XactJobScheduler
+XactCommandScheduler
 ===============
 
 This bundle allows you to provide job scheduling via a list of jobs configured within a DBAL store.
 
 Documentation
 -------------
-### 1) Add XactJobScheduler to your project
+### 1) Add XactCommandScheduler to your project
 
 ```bash
 composer require xactsystems/job-scheduler

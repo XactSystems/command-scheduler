@@ -1,6 +1,6 @@
 <?php
 
-namespace Xact\JobScheduler\Entity;
+namespace Xact\CommandScheduler\Entity;
 
 //annotations
 use Doctrine\ORM\Mapping as ORM;

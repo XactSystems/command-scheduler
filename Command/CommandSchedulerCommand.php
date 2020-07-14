@@ -1,6 +1,6 @@
 <?php
 
-namespace Xact\JobScheduler\Command;
+namespace Xact\CommandScheduler\Command;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Xact\JobScheduler\Entity\ScheduledCommand;
+use Xact\CommandScheduler\Entity\ScheduledCommand;
 
 class CommandSchedulerCommand extends ContainerAwareCommand
 {
