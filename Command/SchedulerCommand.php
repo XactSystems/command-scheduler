@@ -151,7 +151,7 @@ class SchedulerCommand extends ContainerAwareCommand
         foreach ($this->em->getRepository(ScheduledCommand::class)->findBy(['disabled' => false]) as $command) {
 
             $cron = Cron\CronExpression::factory($command->getCronExpression());
-            if ($cron->getPreviousRunDate() <= $now && $cron->getPreviousRunDate() > $command->getLastRunAt())) {
+            if ($cron->getPreviousRunDate() <= new \DateTime() && $cron->getPreviousRunDate() > $command->getLastRunAt()) {
                 // The command does not need to be run yet
                 continue;
             }
