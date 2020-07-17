@@ -4,6 +4,11 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    Xact\CommandScheduler\:
+        public: true
+        resource: '../../*'
+        exclude: '../../{DependencyInjection,Entity,Repository,Resources}'
+
     Xact\CommandScheduler\Command\:
         public: true
         resource: '../../Command/*'

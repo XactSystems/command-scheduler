@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  * ScheduledCommand
  *
  * @ORM\Table(name="ScheduledCommand")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="Xact\CommandScheduler\Repository\ScheduledCommandRepository")
  */
 class ScheduledCommand
 {
@@ -22,6 +22,13 @@ class ScheduledCommand
      * @var int
      */
     private $id;
+
+    /**
+     * @ORM\Column(name="Description", type="string")
+     *
+     * @var string
+     */
+    private $description;
 
     /**
      * @ORM\Column(name="Command", type="string")
@@ -38,11 +45,18 @@ class ScheduledCommand
     private $arguments;
 
     /**
-     * @ORM\Column(name="CronExpression", type="string")
+     * @ORM\Column(name="CronExpression", type="string", nullable=true)
      *
      * @var string
      */
     private $cronExpression;
+
+    /**
+     * @ORM\Column(name="Priority", type="integer")
+     *
+     * @var int
+     */
+    private $priority = 1;
 
     /**
      * @ORM\Column(name="Disabled", type="boolean")
@@ -80,9 +94,9 @@ class ScheduledCommand
     private $lastResult;
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -99,9 +113,28 @@ class ScheduledCommand
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getCommand(): string
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     * @return ScheduledCommand
+     */
+    public function setDescription(string $description): ScheduledCommand
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCommand(): ?string
     {
         return $this->command;
     }
@@ -118,7 +151,7 @@ class ScheduledCommand
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getArguments(): ?string
     {
@@ -137,7 +170,7 @@ class ScheduledCommand
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getCronExpression(): ?string
     {
@@ -156,6 +189,25 @@ class ScheduledCommand
     }
 
     /**
+     * @return int
+     */
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    /**
+     * @param int $priority
+     * @return ScheduledCommand
+     */
+    public function setPriority(int $priority): ScheduledCommand
+    {
+        $this->priority = $priority;
+
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function getDisabled(): bool
@@ -169,7 +221,7 @@ class ScheduledCommand
      */
     public function setDisabled(bool $disabled): ScheduledCommand
     {
-        $this->run = $disabled;
+        $this->disabled = $disabled;
 
         return $this;
     }
@@ -194,9 +246,9 @@ class ScheduledCommand
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getLastResultCode(): int
+    public function getLastResultCode(): ?int
     {
         return $this->lastResultCode;
     }
@@ -213,9 +265,9 @@ class ScheduledCommand
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLastResult(): string
+    public function getLastResult(): ?string
     {
         return $this->lastResult;
     }

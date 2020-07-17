@@ -1,0 +1,34 @@
+{% extends "@XactCommandScheduler/layout.html.twig" %}
+{% block title %}
+    {{ title|trans }}
+{% endblock title %}
+
+{% block content %}
+
+    {% form_theme form '@XactCommandScheduler/horizontal_form_3_9.html.twig' %}
+    <div class="col-md-8 col-sm-12">
+        {{ form_start( form ) }}
+        {{ form_row( form.id ) }}
+        {{ form_row( form.description, {'attr': {'placeholder': 'name'} } ) }}
+        {{ form_row( form.command ) }}
+        {{ form_row( form.arguments, {'attr': {'placeholder': '--argument1=foo --bar'} } ) }}
+        {{ form_row( form.cronExpression, {'attr': {'placeholder': '*/10 * * * *'} } ) }}
+        {{ form_row( form.priority, {'attr': {'placeholder': '1 - 100'} } ) }}
+        <div>
+            {{ form_widget( form.runImmediately ) }}
+            {{ form_label( form.runImmediately ) }}
+        </div>
+        <div>
+            {{ form_widget( form.disabled ) }}
+            {{ form_label( form.disabled ) }}
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-8 col-sm-12">
+                <button type="button" href="{{ path('xact_command_scheduler_list') }}" class="btn btn-warning btn-sm">Cancel</button>
+                {{ form_widget( form.save, {'attr': {'class': 'btn btn-success btn-sm pull-right'} } ) }}
+            </div>
+        </div>
+        {{ form_end( form ) }}
+    </div>
+{% endblock content %}

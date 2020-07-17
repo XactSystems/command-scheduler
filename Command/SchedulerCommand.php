@@ -6,7 +6,6 @@ use Cron\CronExpression;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\Client\ProducerInterface;
 use InvalidArgumentException;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,19 +29,9 @@ class SchedulerCommand extends ContainerAwareCommand
     private $em;
 
     /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var int
      */
     private $startTime;
-
-    /**
-     * @var string
-     */
-    private $verbosity;
 
     /**
      * @var \Symfony\Component\Console\Input\InputInterface;
@@ -60,12 +49,11 @@ class SchedulerCommand extends ContainerAwareCommand
      * @param ProducerInterface $enqueueProducer
      * @param EntityManagerInterface $entityManager
      */
-    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em)
     {
         parent::__construct(self::$defaultName);
 
         $this->em = $em;
-        $this->logger = $logger;
     }
 
     /**
@@ -127,6 +115,8 @@ class SchedulerCommand extends ContainerAwareCommand
             usleep(rand(500, 1000) * 1E3);
         }
 
+        $this->cleanUpOnceOnlyCommands();
+
         $this->output->writeln('The command scheduler has terminated.');
     }
 
@@ -140,18 +130,20 @@ class SchedulerCommand extends ContainerAwareCommand
         return (($this->maxRuntime > 0) && (time() - $this->startTime) > $this->maxRuntime);
     }
 
-    protected function checkRunningCommands()
-    {
-
-    }
-
     protected function processCommands()
     {
         /** @var ScheduledCommand $command */
-        foreach ($this->em->getRepository(ScheduledCommand::class)->findBy(['disabled' => false]) as $command) {
+        foreach ($this->em->getRepository(ScheduledCommand::class)->getActiveCommands() as $command) {
 
-            $cron = CronExpression::factory($command->getCronExpression());
-            if ($command->getRunImmediately() || $cron->getNextRunDate($command->getLastRunAt()) <= new \DateTime()) {
+            $execute = $command->getRunImmediately();
+            if(!$execute && !empty($command->getCronExpression())) {
+                $cron = CronExpression::factory($command->getCronExpression());
+                if ($cron->getNextRunDate($command->getLastRunAt()) <= new \DateTime()) {
+                    $execute = true;
+                }
+            }
+
+            if($execute) {
                 $this->executeCommand($command);
             }
 
@@ -160,12 +152,15 @@ class SchedulerCommand extends ContainerAwareCommand
             }
         }
 
-        /*
-        * Clear the EntityManager to avoid conflict between commands and make sure no entities are managed
-        */
+        // Clear the EntityManager to avoid conflict between commands and make sure no entities are managed
         $this->em->clear();
     }
 
+    /**
+     * Run the command
+     * 
+     * @param ScheduledCommand $scheduledCommand
+     */
     protected function executeCommand(ScheduledCommand $scheduledCommand)
     {
         try {
@@ -173,11 +168,11 @@ class SchedulerCommand extends ContainerAwareCommand
 
             $scheduledCommand->setLastRunAt(new \DateTime());
             $this->em->flush();
-            
+
             $this->em->getConnection()->commit();
 
             $input = new StringInput(
-                $scheduledCommand->getCommand().' '.$scheduledCommand->getArguments().' --env='.$this->input->getOption('env')
+                $scheduledCommand->getCommand() . ' ' . $scheduledCommand->getArguments() . ' --env=' . $this->input->getOption('env')
             );
 
             $output = new ConsoleOutput();
@@ -191,8 +186,8 @@ class SchedulerCommand extends ContainerAwareCommand
 
             // Execute the command and retain the return code
             $this->output->writeln(
-                '<info>Execute</info> : <comment>'.$scheduledCommand->getCommand()
-                .' '.$scheduledCommand->getArguments().'</comment>'
+                '<info>Execute</info> : <comment>' . $scheduledCommand->getCommand()
+                . ' ' . $scheduledCommand->getArguments() . '</comment>'
             );
             $result = $command->run($input, $output);
             $resultText = 'The command completed successfully';
@@ -213,11 +208,27 @@ class SchedulerCommand extends ContainerAwareCommand
             $scheduledCommand->setRunImmediately(false);
             $scheduledCommand->setLastResultCode($result);
             $scheduledCommand->setLastResult($resultText);
+
+            // Disable any once-only commands
+            if (empty($scheduledCommand->getCronExpression())) {
+                $scheduledCommand->setDisabled(true);
+            }
+
             $this->em->flush();
 
             unset($command);
         }
 
         gc_collect_cycles();
+    }
+
+    /**
+     * Purge old once-only commands
+     *
+     * @return void
+     */
+    protected function cleanUpOnceOnlyCommands()
+    {
+        $this->em->getRepository(ScheduledCommand::class)->cleanUpOnceOnlyCommands();
     }
 }
