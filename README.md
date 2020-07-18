@@ -11,16 +11,35 @@ Documentation
 composer require xactsystems/job-scheduler
 ```
 
-### 2) Configure php-enqueue
-```twig
+### 2) Create the scheduler table
+```bash
+php bin/console doctrine:schema:create
 ```
 
-### 3) Create the scheduler table
-```php
+### 3) Add the routes for the scheduler admin views
+config/routes.yaml
+```yaml
+command_scheduler:
+    resource: "@XactCommandSchedulerBundle/Resources/config/routing.yaml"
 ```
 
-### 4) Add a scheduled job
+### 4) Use the admin views
+Browse to http://my-project/command-scheduler/list
+
+### 5) Add a scheduled job via code
 ```php
+use Xact\CommandScheduler\Scheduler\CommandScheduler;
+use Xact\CommandScheduler\Entity\ScheduledCommand;
+use Cron\CronExpression;
+...
+
+public function myControllerAction(CommandScheduler $scheduler)
+{
+    $scheduledCommand = new ScheduledCommand();
+    $scheduledCommand->setCronExpression( CronExpression::factory('@daily') );
+    $scheduledCommand->setCommand( 'app:my-daily-command' );
+    $scheduler->add( $scheduledCommand );
+}
 ```
 Credits
 -------
@@ -34,4 +53,4 @@ License
 This bundle is released under the MIT license. See the complete license in the
 bundle:
 
-[LICENSE](https://github.com/xactsystems/job-scheduler/blob/master/LICENSE)
+[LICENSE](https://github.com/xactsystems/command-scheduler/blob/master/LICENSE)
