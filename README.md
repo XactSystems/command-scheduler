@@ -112,7 +112,7 @@ public function myControllerAction(CommandScheduler $scheduler)
 
 Cron notes
 ----------
-The bundle uses dragonmantank/cron-expression CronExpression class to determine run times and you can use 
+The bundle uses dragonmantank/cron-expression CronExpression class to determine run times and you can use the non-standard pre-defined scheduling definitions. See [Cron Format](https://en.wikipedia.org/wiki/Cron#Format) for more details.
 
 Credits
 -------
