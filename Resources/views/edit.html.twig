@@ -25,7 +25,7 @@
 
         <div class="row mt-2">
             <div class="col-md-8 col-sm-12">
-                <button type="button" href="{{ path('xact_command_scheduler_list') }}" class="btn btn-warning btn-sm">Cancel</button>
+                <a href="{{ path('xact_command_scheduler_list') }}" class="btn btn-warning btn-sm" role="button">Cancel</a>
                 {{ form_widget( form.save, {'attr': {'class': 'btn btn-success btn-sm pull-right'} } ) }}
             </div>
         </div>
