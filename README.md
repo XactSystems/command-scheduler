@@ -36,7 +36,7 @@ php bin/console xact:command-scheduler
 
 The command accepts the following options:
 * `--max-runtime=nnn`       Sets the maximum length in seconds the scheduler will run for. 0 (default) runs forever.
-* `idle-time=nnn`           Sets the number of seconds the scheduler sleeps for when the command queue is empty. Defaults to 5.
+* `--idle-time=nnn`           Sets the number of seconds the scheduler sleeps for when the command queue is empty. Defaults to 5.
 
 Manage the scheduler via code
 -----------------------------
