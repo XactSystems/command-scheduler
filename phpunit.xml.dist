@@ -16,8 +16,8 @@
     </php>
 
     <testsuites>
-        <testsuite name="xactsystems/job-scheduler Test Suite">
-            <directory>vendor/xactsystems/job-scheduler/Tests</directory>
+        <testsuite name="command-scheduler Test Suite">
+            <directory>vendor/xactsystems/command-scheduler/Tests</directory>
         </testsuite>
     </testsuites>
 

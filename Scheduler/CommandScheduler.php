@@ -24,17 +24,6 @@ class CommandScheduler
     }
 
     /**
-     * Add a scheduled command
-     *
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $scheduledCommand
-     * @return void
-     */
-    public function add(ScheduledCommand $scheduledCommand)
-    {
-        # code...
-    }
-
-    /**
      * Get a scheduled command by ID
      *
      * @param integer $id
@@ -51,7 +40,7 @@ class CommandScheduler
      * @param \Xact\CommandScheduler\Entity\ScheduledCommand $scheduledCommand
      * @return \Xact\CommandScheduler\Entity\ScheduledCommand
      */
-    public function update(ScheduledCommand $scheduledCommand): ScheduledCommand
+    public function set(ScheduledCommand $scheduledCommand): ScheduledCommand
     {
         $this->em->persist($scheduledCommand);
         $this->em->flush();
@@ -68,6 +57,7 @@ class CommandScheduler
     public function delete(ScheduledCommand $scheduledCommand)
     {
         $this->em->remove($scheduledCommand);
+        $this->em->flush();
     }
 
     /**
@@ -98,7 +88,7 @@ class CommandScheduler
     }
 
     /**
-     * Disable by ID
+     * Run immediately by ID
      *
      * @param integer $id
      * @param boolean $runImmediately
