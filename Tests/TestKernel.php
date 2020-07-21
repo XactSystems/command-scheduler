@@ -37,16 +37,8 @@ class TestKernel extends Kernel
 
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
     {
-        dump("configureContainer\n");
-        //$c->setParameter('kernel.secret', '0034otj3nt9-43oj%');
-
         $confDir = $this->getProjectDir().'/Resources/config';
         $loader->load($confDir . '/{test}/*.yaml', 'glob');
-        //$loader->load($confDir . '/test/framework.yaml');
-        //$loader->load($confDir . '/test/doctrine.yaml');
-        $loader->load($confDir . '/services.yaml');
-        //dump($c->getParameterBag());
-        dump($c->getServiceIds());
     }
 }
 
