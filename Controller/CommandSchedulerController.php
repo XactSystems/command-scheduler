@@ -25,25 +25,6 @@ class CommandSchedulerController extends Controller
     }
 
     /**
-     * Disabled/enable a scheduled command
-     *
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Doctrine\ORM\EntityManagerInterface $em
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     *
-     * @Route("/command-scheduler/disable/{id}", name="xact_command_scheduler_disable")
-     * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
-     */
-    public function disable(ScheduledCommand $command, EntityManagerInterface $em): Response
-    {
-        $command->setDisabled(!$command->getDisabled());
-        $em->flush();
-
-        return $this->redirectToRoute('xact_command_scheduler_list');
-    }
-
-    /**
      * Edit a scheduled command
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
@@ -95,7 +76,29 @@ class CommandSchedulerController extends Controller
 
         $this->addFlash('success', "The schedule for command '{$command->getCommand()} has been deleted.'");
 
+        return $this->redirectToRoute('xact_command_scheduler_list');
+    }
 
+    /**
+     * Disabled/enable a scheduled command
+     *
+     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
+     * @param \Doctrine\ORM\EntityManagerInterface $em
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @Route("/command-scheduler/disable/{id}", name="xact_command_scheduler_disable")
+     * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
+     */
+    public function disable(ScheduledCommand $command, EntityManagerInterface $em): Response
+    {
+        $disable = !$command->getDisabled();
+        $command->setDisabled($disable);
+        $em->flush();
+
+        $disabledText = $disable ? 'disabled' : 'enabled';
+        $this->addFlash('success', "The schedule for command '{$command->getCommand()}' has been {$disabledText}.");
+        
         return $this->redirectToRoute('xact_command_scheduler_list');
     }
 

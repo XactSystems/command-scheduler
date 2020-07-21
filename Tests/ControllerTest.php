@@ -79,5 +79,43 @@ class ControllerTest extends WebTestCase
         //$this->assertEquals($updatedCommand->getDescription(), 'Test command 1 updated');
         //$this->assertEquals($updatedCommand->getCronExpression(), '*/20 * * * *');
     }
+
+    public function testDisable()
+    {
+        $scheduledCommand = new ScheduledCommand();
+        $scheduledCommand->setDescription('Test command 2');
+        $scheduledCommand->setCommand('test:test-command-2');
+        $scheduledCommand->setCronExpression('*/5 * * * *');
+        $scheduledCommand->setDisabled(false);
+
+        $commandScheduler = new CommandScheduler($this->entityManager);
+        $commandScheduler->set($scheduledCommand);
+        $this->assertNotEmpty($scheduledCommand->getId());
+
+        $crawler = $this->client->request('POST', "/command-scheduler/disable/{$scheduledCommand->getId()}");
+        $this->assertContains($this->client->getResponse()->getStatusCode(), [200, 302]);
+
+        $updatedCommand = $commandScheduler->get($scheduledCommand->getId());
+        $this->assertEquals(true, $updatedCommand->getDisabled());
+    }
+
+    public function testRun()
+    {
+        $scheduledCommand = new ScheduledCommand();
+        $scheduledCommand->setDescription('Test command 3');
+        $scheduledCommand->setCommand('test:test-command-3');
+        $scheduledCommand->setCronExpression('*/5 * * * *');
+        $scheduledCommand->setRunImmediately(false);
+
+        $commandScheduler = new CommandScheduler($this->entityManager);
+        $commandScheduler->set($scheduledCommand);
+        $this->assertNotEmpty($scheduledCommand->getId());
+
+        $crawler = $this->client->request('POST', "/command-scheduler/run/{$scheduledCommand->getId()}");
+        $this->assertContains($this->client->getResponse()->getStatusCode(), [200, 302]);
+
+        $updatedCommand = $commandScheduler->get($scheduledCommand->getId());
+        $this->assertEquals(true, $updatedCommand->getRunImmediately());
+    }
 }
 
