@@ -13,6 +13,11 @@ class CommandSchedulerTest extends KernelTestCase
      */
     private $entityManager;
 
+    protected static function getKernelClass()
+    {
+        return TestKernel::class;
+    }
+
     protected function setUp()
     {
         self::bootKernel();
