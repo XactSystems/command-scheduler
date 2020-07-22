@@ -1,3 +1,6 @@
 doctrine:
     dbal:
-        url: 'sqllite:\\\\:memory:'
+        default_connection:       default
+        connections:
+            default:
+                url: "sqlite:///:memory:"
