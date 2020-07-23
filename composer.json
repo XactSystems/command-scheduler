@@ -3,7 +3,6 @@
     "description": "A Symfony command scheduler.",
     "type": "symfony-bundle",
     "license": "MIT",
-    "version": "v1.0.0-dev",
     "authors": [
         {
             "name": "Ian Foulds",
@@ -20,13 +19,14 @@
             "Xact\\CommandScheduler\\Tests\\": "Tests/"
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": "^7.0",
-        "doctrine/doctrine-bundle": "~2.1",
+        "doctrine/doctrine-bundle": "~1.12",
         "sensio/framework-extra-bundle": "~5.4",
-        "symfony/framework-bundle": "~3.4",
         "symfony/monolog-bundle": "~3.5",
+        "doctrine/orm": "~2.5",
+        "symfony/yaml": "^3.4.30",
         "dragonmantank/cron-expression": "~1.1"
     },
     "require-dev": {

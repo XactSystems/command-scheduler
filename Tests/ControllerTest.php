@@ -2,6 +2,7 @@
 
 namespace Xact\CommandScheduler\Tests;
 
+use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Scheduler\CommandScheduler;
@@ -24,13 +25,17 @@ class ControllerTest extends WebTestCase
         self::bootKernel();
 
         $this->client = static::createClient();
+
         $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
-        $this->entityManager->beginTransaction();
+
+        $schemaTool = new SchemaTool($this->entityManager);
+        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
+        $schemaTool->createSchema($metadata);
     }
 
     protected function tearDown()
     {
-        $this->entityManager->rollback();
+        $this->entityManager->close();
         $this->entityManager = null;
     }
 
@@ -41,6 +46,9 @@ class ControllerTest extends WebTestCase
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
     }
 
+    /**
+     * @group controller
+     */
     public function testEdit()
     {
         $scheduledCommand = new ScheduledCommand();
@@ -80,6 +88,9 @@ class ControllerTest extends WebTestCase
         //$this->assertEquals($updatedCommand->getCronExpression(), '*/20 * * * *');
     }
 
+    /**
+     * @group controller
+     */
     public function testDisable()
     {
         $scheduledCommand = new ScheduledCommand();
@@ -99,6 +110,9 @@ class ControllerTest extends WebTestCase
         $this->assertEquals(true, $updatedCommand->getDisabled());
     }
 
+    /**
+     * @group controller
+     */
     public function testRun()
     {
         $scheduledCommand = new ScheduledCommand();

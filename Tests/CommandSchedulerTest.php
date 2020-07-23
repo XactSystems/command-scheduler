@@ -2,6 +2,7 @@
 
 namespace Xact\CommandScheduler\Tests;
 
+use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Scheduler\CommandScheduler;
@@ -18,20 +19,32 @@ class CommandSchedulerTest extends KernelTestCase
         return TestKernel::class;
     }
 
-    protected function setUp()
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
     {
         self::bootKernel();
 
         $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
-        $this->entityManager->beginTransaction();
+        
+        $schemaTool = new SchemaTool($this->entityManager);
+        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
+        $schemaTool->createSchema($metadata);
     }
 
-    protected function tearDown()
+    /**
+     * @inheritDoc
+     */
+    protected function tearDown(): void
     {
-        $this->entityManager->rollback();
+        $this->entityManager->close();
         $this->entityManager = null;
     }
 
+    /**
+     * @group scheduler
+     */
     public function testSet()
     {
         $scheduledCommand = new ScheduledCommand();
@@ -49,6 +62,9 @@ class CommandSchedulerTest extends KernelTestCase
         $this->assertEquals($retrievedCommand->getDescription(), 'Changed description');
     }
 
+    /**
+     * @group scheduler
+     */
     public function testDelete()
     {
         $scheduledCommand = new ScheduledCommand();
@@ -64,6 +80,9 @@ class CommandSchedulerTest extends KernelTestCase
         $this->assertEmpty($scheduledCommand->getId());
     }
 
+    /**
+     * @group scheduler
+     */
     public function testActive()
     {
         $scheduledCommand = new ScheduledCommand();
