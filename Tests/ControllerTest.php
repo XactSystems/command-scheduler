@@ -20,7 +20,7 @@ class ControllerTest extends WebTestCase
      */
     private $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         self::bootKernel();
 
@@ -33,7 +33,7 @@ class ControllerTest extends WebTestCase
         $schemaTool->createSchema($metadata);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->entityManager->close();
         $this->entityManager = null;
