@@ -38,7 +38,7 @@ class TestKernel extends Kernel
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
     {
         $confDir = $this->getProjectDir().'/Resources/config';
-        $loader->load($confDir . '/{test}/*' . '.yaml', 'glob');
+        $loader->load($confDir . '/{test}/*.yaml', 'glob');
     }
 }
 
