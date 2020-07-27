@@ -22,8 +22,6 @@ class ControllerTest extends WebTestCase
 
     protected function setUp()
     {
-        self::bootKernel();
-
         $this->client = static::createClient();
 
         $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
@@ -37,6 +35,8 @@ class ControllerTest extends WebTestCase
     {
         $this->entityManager->close();
         $this->entityManager = null;
+
+        parent::tearDown();
     }
 
     public function testList()

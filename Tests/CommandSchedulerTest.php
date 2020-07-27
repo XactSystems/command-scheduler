@@ -40,6 +40,8 @@ class CommandSchedulerTest extends KernelTestCase
     {
         $this->entityManager->close();
         $this->entityManager = null;
+
+        parent::tearDown();
     }
 
     /**
