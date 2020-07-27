@@ -71,6 +71,16 @@ class CommandScheduler
     }
 
     /**
+     * Get an array of all commands
+     *
+     * @return array
+     */
+    public function getAll(): array
+    {
+        return $this->em->getRepository(ScheduledCommand::class)->findAll();
+    }
+
+    /**
      * Disable by ID
      *
      * @param integer $id

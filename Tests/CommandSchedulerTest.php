@@ -26,7 +26,7 @@ class CommandSchedulerTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $this->entityManager = self::$container->get('doctrine')->getManager('test');
         
         $schemaTool = new SchemaTool($this->entityManager);
         $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
@@ -40,6 +40,8 @@ class CommandSchedulerTest extends KernelTestCase
     {
         $this->entityManager->close();
         $this->entityManager = null;
+
+        parent::tearDown();
     }
 
     /**

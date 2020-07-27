@@ -2,25 +2,23 @@
 
 namespace Xact\CommandScheduler\Controller;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Form\ScheduledCommandForm;
+use Xact\CommandScheduler\Scheduler\CommandScheduler;
 
-class CommandSchedulerController extends Controller
+class CommandSchedulerController extends AbstractController
 {
     /**
      * @Route("/command-scheduler/list", name="xact_command_scheduler_list")
      */
-    function list(EntityManagerInterface $em) {
-        $scheduledCommands = $em->getRepository(ScheduledCommand::class)->findAll();
-
+    function list(CommandScheduler $scheduler) {
         return $this->render('@XactCommandScheduler/index.html.twig', [
-            'scheduledCommands' => $scheduledCommands,
+            'scheduledCommands' => $scheduler->getAll(),
         ]);
     }
 
@@ -29,23 +27,20 @@ class CommandSchedulerController extends Controller
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Doctrine\ORM\EntityManagerInterface $em
+     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
      *
      * @return \Symfony\Component\HttpFoundation\Response
      *
      * @Route("/command-scheduler/edit/{id}", name="xact_command_scheduler_edit")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
      */
-    public function edit(Request $request, ScheduledCommand $command, EntityManagerInterface $em): Response
+    public function edit(Request $request, ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
         $form = $this->createForm(ScheduledCommandForm::class, $command);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($command->getId() === null) {
-                $em->persist($command);
-            }
-            $em->flush();
+            $scheduler->set($command);
 
             $this->addFlash('success', "The schedule for command '{$command->getCommand()} has been updated.'");
 
@@ -62,17 +57,16 @@ class CommandSchedulerController extends Controller
      * Delete a scheduled command
      *
      * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Doctrine\ORM\EntityManagerInterface $em
+     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
      *
      * @return \Symfony\Component\HttpFoundation\Response
      *
      * @Route("/command-scheduler/delete/{id}", name="xact_command_scheduler_delete")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
      */
-    public function delete(ScheduledCommand $command, EntityManagerInterface $em): Response
+    public function delete(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
-        $em->remove($command);
-        $em->flush();
+        $scheduler->delete($command);
 
         $this->addFlash('success', "The schedule for command '{$command->getCommand()} has been deleted.'");
 
@@ -83,20 +77,18 @@ class CommandSchedulerController extends Controller
      * Disabled/enable a scheduled command
      *
      * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Doctrine\ORM\EntityManagerInterface $em
+     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
      *
      * @return \Symfony\Component\HttpFoundation\Response
      *
      * @Route("/command-scheduler/disable/{id}", name="xact_command_scheduler_disable")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
      */
-    public function disable(ScheduledCommand $command, EntityManagerInterface $em): Response
+    public function disable(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
-        $disable = !$command->getDisabled();
-        $command->setDisabled($disable);
-        $em->flush();
+        $scheduler->disable($command->getId(), !$command->getDisabled());
 
-        $disabledText = $disable ? 'disabled' : 'enabled';
+        $disabledText = $command->getDisabled() ? 'disabled' : 'enabled';
         $this->addFlash('success', "The schedule for command '{$command->getCommand()}' has been {$disabledText}.");
         
         return $this->redirectToRoute('xact_command_scheduler_list');
@@ -106,17 +98,16 @@ class CommandSchedulerController extends Controller
      * Immediately run a scheduled command
      *
      * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Doctrine\ORM\EntityManagerInterface $em
+     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
      *
      * @return \Symfony\Component\HttpFoundation\Response
      *
      * @Route("/command-scheduler/run/{id}", name="xact_command_scheduler_run")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
      */
-    public function run(ScheduledCommand $command, EntityManagerInterface $em): Response
+    public function run(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
-        $command->setRunImmediately(true);
-        $em->flush();
+        $scheduler->runImmediately($command->getId());
 
         $this->addFlash('success', "The command '{$command->getCommand()} has been scheduled to run immediately.'");
 
@@ -127,26 +118,22 @@ class CommandSchedulerController extends Controller
      * Create a new scheduled command
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \Doctrine\ORM\EntityManagerInterface $em
+     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
      *
      * @return \Symfony\Component\HttpFoundation\Response
      *
      * @Route("/command-scheduler/new", name="xact_command_scheduler_new")
      */
-    function new (Request $request, EntityManagerInterface $em): Response {
+    function new (Request $request, CommandScheduler $scheduler): Response {
         $command = new ScheduledCommand();
 
         $form = $this->createForm(ScheduledCommandForm::class, $command);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($command->getId() === null) {
-                $em->persist($command);
-            }
-            $em->flush();
+            $scheduler->set($command);
 
             $this->addFlash('success', "A new schedule for command '{$command->getCommand()} has been created.'");
-
 
             return $this->redirectToRoute('xact_command_scheduler_list');
         }
