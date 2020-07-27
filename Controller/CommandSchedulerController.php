@@ -14,6 +14,8 @@ use Xact\CommandScheduler\Scheduler\CommandScheduler;
 class CommandSchedulerController extends AbstractController
 {
     /**
+     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
+     * 
      * @Route("/command-scheduler/list", name="xact_command_scheduler_list")
      */
     function list(CommandScheduler $scheduler) {

@@ -25,9 +25,6 @@ class ControllerTest extends WebTestCase
      */
     private $client;
 
-    /**
-     * @inheritDoc
-     */
     protected static function getKernelClass()
     {
         return TestKernel::class;
@@ -36,6 +33,7 @@ class ControllerTest extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
+
         $this->entityManager = self::$container->get('doctrine')->getManager('test');
 
         $schemaTool = new SchemaTool($this->entityManager);
