@@ -22,7 +22,6 @@
     "minimum-stability": "stable",
     "require": {
         "php": "^7.1",
-        "symfony/framework-bundle": "4.4",
         "doctrine/doctrine-bundle": "^2.1",
         "doctrine/orm": "^2.7",
         "sensio/framework-extra-bundle": "^5.5",
