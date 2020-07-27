@@ -25,6 +25,7 @@
         "doctrine/doctrine-bundle": "^2.1",
         "doctrine/orm": "^2.7",
         "sensio/framework-extra-bundle": "^5.5",
+        "symfony/asset": "^4.4",
         "symfony/yaml": "*",
         "dragonmantank/cron-expression": "^3.0"
     },
