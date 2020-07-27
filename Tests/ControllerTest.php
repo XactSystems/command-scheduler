@@ -20,18 +20,18 @@ class ControllerTest extends WebTestCase
      */
     private $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->client = static::createClient();
 
-        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $this->entityManager = self::$container->get('doctrine')->getManager();
 
         $schemaTool = new SchemaTool($this->entityManager);
         $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
         $schemaTool->createSchema($metadata);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->entityManager->close();
         $this->entityManager = null;

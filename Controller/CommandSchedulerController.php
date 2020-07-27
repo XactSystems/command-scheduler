@@ -3,7 +3,7 @@
 namespace Xact\CommandScheduler\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,7 +11,7 @@ use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Form\ScheduledCommandForm;
 use Xact\CommandScheduler\Scheduler\CommandScheduler;
 
-class CommandSchedulerController extends Controller
+class CommandSchedulerController extends AbstractController
 {
     /**
      * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
