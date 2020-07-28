@@ -1,5 +1,5 @@
 {
-    "name": "xactsystems/command-scheduler",
+    "name": "local/command-scheduler",
     "description": "A Symfony command scheduler.",
     "type": "symfony-bundle",
     "license": "MIT",

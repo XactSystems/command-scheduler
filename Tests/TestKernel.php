@@ -20,7 +20,6 @@ class TestKernel extends Kernel
         $bundles = [
             \Symfony\Bundle\FrameworkBundle\FrameworkBundle::class,
             \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class,
-            \Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle::class,
             \Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class,
         ];
 
