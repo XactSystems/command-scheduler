@@ -2,8 +2,10 @@
 
 namespace Xact\CommandScheduler\Repository;
 
+use Cron\CronExpression;
 use DateTime;
 use Doctrine\ORM\EntityRepository;
+use Xact\CommandScheduler\Entity\ScheduledCommand;
 
 /**
  * ScheduledCommand repository class
@@ -30,11 +32,13 @@ class ScheduledCommandRepository extends EntityRepository
      *
      * @return void
      */
-    public function cleanUpOnceOnlyCommands()
+    public function cleanUpOnceOnlyCommands(int $afterDays = 60)
     {
-        $purgeDate = new DateTime('-2 month');
+        $purgeDate = new DateTime("-{$afterDays} day");
+
+        // Purge jobs without a cron expression
         $this->getEntityManager()->createQuery(
-            "DELETE c
+            "DELETE
             FROM XactCommandSchedulerBundle:ScheduledCommand c
             WHERE c.disabled = true AND COALESCE(c.cronExpression, '') = '' AND c.lastRunAt < :purgeDate"
         )->setParameter('purgeDate', $purgeDate)
