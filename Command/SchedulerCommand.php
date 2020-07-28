@@ -34,6 +34,21 @@ class SchedulerCommand extends Command
     private $startTime;
 
     /**
+     * @var int
+     */
+    private $maxRuntime;
+
+    /**
+     * @var int
+     */
+    private $idleTime;
+
+    /**
+     * @var int
+     */
+    private $deleteOldJobsAfter = 0;
+
+    /**
      * @var \Symfony\Component\Console\Input\InputInterface;
      */
     private $input;
@@ -64,6 +79,7 @@ class SchedulerCommand extends Command
         $this->setDescription('Schedules commands to be executed via Enqueue events')
             ->addOption('max-runtime', 'r', InputOption::VALUE_OPTIONAL, 'The maximum runtime in seconds. 0 runs forever.', 0)
             ->addOption('idle-time', null, InputOption::VALUE_OPTIONAL, 'Seconds to sleep when the command queue is empty.', 5)
+            ->addOption('delete-old-jobs-after', null, InputOption::VALUE_OPTIONAL, 'Days after which to delete old single-run jobs. 0 is never.', 60)
         ;
     }
 
@@ -77,12 +93,16 @@ class SchedulerCommand extends Command
         $this->output = $output;
         $this->maxRuntime = (integer) $input->getOption('max-runtime');
         if ($this->maxRuntime < 0) {
-            throw new InvalidArgumentException('The maximum runtime must be greater than zero.');
+            throw new InvalidArgumentException('The maximum runtime must be greater than or equal to zero.');
         }
 
         $this->idleTime = (integer) $input->getOption('idle-time');
         if ($this->idleTime <= 0) {
             throw new InvalidArgumentException('Seconds to sleep when idle must be greater than zero.');
+        }
+        $this->deleteOldJobsAfter = (integer) $input->getOption('delete-old-jobs-after');
+        if ($this->deleteOldJobsAfter < 0) {
+            throw new InvalidArgumentException('Delete old jobs must be greater than or equal to zero.');
         }
     }
 
@@ -112,10 +132,10 @@ class SchedulerCommand extends Command
 
             $this->processCommands();
 
-            usleep(rand(500, 1000) * 1E3);
-        }
+            $this->cleanUpOnceOnlyCommands();
 
-        $this->cleanUpOnceOnlyCommands();
+            sleep($this->idleTime);
+        }
 
         $this->output->writeln('The command scheduler has terminated.');
     }
@@ -229,6 +249,8 @@ class SchedulerCommand extends Command
      */
     protected function cleanUpOnceOnlyCommands()
     {
-        $this->em->getRepository(ScheduledCommand::class)->cleanUpOnceOnlyCommands();
+        if ($this->deleteOldJobsAfter > 0) {
+            $this->em->getRepository(ScheduledCommand::class)->cleanUpOnceOnlyCommands($this->deleteOldJobsAfter);
+        }
     }
 }
