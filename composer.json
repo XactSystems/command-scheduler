@@ -25,7 +25,9 @@
         "doctrine/doctrine-bundle": "^1.12",
         "doctrine/orm": "^2.6",
         "sensio/framework-extra-bundle": "~5.4",
-        "symfony/yaml": "^3.4.30",
+        "symfony/asset": "^3.4,
+        "symfony/form": "^3.4",
+        "symfony/yaml": "^3.4",
         "dragonmantank/cron-expression": "~1.1"
     },
     "require-dev": {
