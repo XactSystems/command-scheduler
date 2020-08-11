@@ -25,6 +25,19 @@ class CommandSchedulerController extends Controller
     }
 
     /**
+     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
+     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
+     * 
+     * @Route("/command-scheduler/history/{id}", name="xact_command_scheduler_history")
+     * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
+     */
+    function history(ScheduledCommand $command) {
+        return $this->render('@XactCommandScheduler/history.html.twig', [
+            'command' => $command,
+        ]);
+    }
+
+    /**
      * Edit a scheduled command
      *
      * @param \Symfony\Component\HttpFoundation\Request $request

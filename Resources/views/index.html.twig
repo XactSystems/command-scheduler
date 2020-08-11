@@ -48,6 +48,15 @@
 							{{ command.lastResult }}
 						</td>
 						<td style="min-width: 90px;">
+						<td style="min-width: 110px;">
+							<a href="{{ path('xact_command_scheduler_history', {'id': command.id}) }}">
+								<i class="text-secondary fas fa-list-alt"></i>
+								<i class="sr-only">{{ "Edit"|trans }}</i>
+							</a>
+							<a href="#" data-toggle="modal" data-target="#confirm-run" data-command="{{ command.command }}" data-disabled="{{ command.disabled }}" data-command-path="{{ path('xact_command_scheduler_run', {'id': command.id}) }}">
+								<i class="text-{% if command.disabled == true %}muted{% else %}success{% endif %} fas fa-play"></i>
+								<i class="sr-only">{{ "Run"|trans }}</i>
+							</a>
 							<a href="{{ path('xact_command_scheduler_edit', {'id': command.id}) }}">
 								<i class="text-info fas fa-pencil-alt"></i>
 								<i class="sr-only">{{ "Edit"|trans }}</i>
@@ -55,10 +64,6 @@
 							<a href="#" data-toggle="modal" data-target="#confirm-delete" data-command="{{ command.command }}" data-command-path="{{ path('xact_command_scheduler_delete', {'id': command.id}) }}">
 								<i class="text-danger fas fa-trash"></i>
 								<i class="sr-only">{{ "Delete"|trans }}</i>
-							</a>
-							<a href="#" data-toggle="modal" data-target="#confirm-run" data-command="{{ command.command }}" data-disabled="{{ command.disabled }}" data-command-path="{{ path('xact_command_scheduler_run', {'id': command.id}) }}">
-								<i class="text-{% if command.disabled == true %}muted{% else %}success{% endif %} fas fa-play"></i>
-								<i class="sr-only">{{ "Run"|trans }}</i>
 							</a>
 						</td>
 					</tr>
