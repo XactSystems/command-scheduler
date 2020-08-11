@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
+use Xact\CommandScheduler\Scheduler\CommandSchedulerFactory;
 
 class SchedulerCommand extends Command
 {
@@ -76,7 +77,7 @@ class SchedulerCommand extends Command
      */
     protected function configure()
     {
-        $this->setDescription('Schedules commands to be executed via Enqueue events')
+        $this->setDescription('Schedules commands to be executed via cron expressions')
             ->addOption('max-runtime', 'r', InputOption::VALUE_OPTIONAL, 'The maximum runtime in seconds. 0 runs forever.', 0)
             ->addOption('idle-time', null, InputOption::VALUE_OPTIONAL, 'Seconds to sleep when the command queue is empty.', 5)
             ->addOption('delete-old-jobs-after', null, InputOption::VALUE_OPTIONAL, 'Days after which to delete old single-run jobs. 0 is never.', 60)
@@ -228,6 +229,8 @@ class SchedulerCommand extends Command
             $scheduledCommand->setRunImmediately(false);
             $scheduledCommand->setLastResultCode($result);
             $scheduledCommand->setLastResult($resultText);
+
+            CommandSchedulerFactory::createCommandHistory($scheduledCommand);
 
             // Disable any once-only commands
             if (empty($scheduledCommand->getCronExpression())) {

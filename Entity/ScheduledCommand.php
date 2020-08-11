@@ -2,7 +2,8 @@
 
 namespace Xact\CommandScheduler\Entity;
 
-//annotations
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -92,6 +93,22 @@ class ScheduledCommand
      * @var string
      */
     private $lastResult;
+
+    /**
+     * @var Collection
+     *
+     * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade="all", orphanRemoval=true)
+     */
+    private $commandHistory;
+
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->commandHistory = new ArrayCollection();
+    }
 
     /**
      * @return int|null
@@ -302,4 +319,22 @@ class ScheduledCommand
         return $this;
     }
 
+    /**
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCommandHistory(): Collection
+    {
+        return $this->commandHistory;
+    }
+
+    /**
+     * @param \Doctrine\Common\Collections\Collection $commandHistory
+     * @return ScheduledCommand
+     */
+    public function setCommandHistory(Collection $commandHistory): ScheduledCommand
+    {
+        $this->commandHistory = $commandHistory;
+
+        return $this;
+    }
 }
