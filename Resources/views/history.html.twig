@@ -1,0 +1,37 @@
+{% extends "@XactCommandScheduler/layout.html.twig" %}
+
+{% block title %}
+	{{ 'Scheduled Command History'|trans }} - {{ command.description }}
+{% endblock title %}
+
+{% block content %}
+	<div class="table-responsive table-stripped">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>{{ "Ran At"|trans }}</th>
+					<th>{{ "Result Code"|trans }}</th>
+					<th>{{ "Result"|trans }}</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{% for history in command.commandHistory %}
+						<td>
+							{{ history.runAt|date( "d/m/Y H:i:s" ) }}
+						</td>
+						<td>
+							{{ history.resultCode }}
+						</td>
+						<td>
+							{{ history.result }}
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		</div>
+	</div>
+
+	<a href="{{ path('xact_command_scheduler_list') }}" class="btn btn-success btn-sm pull-right" role="button">{{ "Scheduled Command List"|trans }}</a>
+{% endblock content %}

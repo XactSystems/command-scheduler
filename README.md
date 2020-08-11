@@ -10,7 +10,7 @@ Documentation
 ### 1) Add XactCommandScheduler to your project
 
 ```bash
-composer require xactsystems/job-scheduler
+composer require xactsystems/command-scheduler
 ```
 
 ### 2) Create the scheduler table
