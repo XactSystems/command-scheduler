@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
+use Xact\CommandScheduler\Scheduler\CommandHistoryFactory;
 use Xact\CommandScheduler\Scheduler\CommandSchedulerFactory;
 
 class SchedulerCommand extends Command
@@ -239,7 +240,7 @@ class SchedulerCommand extends Command
             $scheduledCommand->setLastResultCode($result);
             $scheduledCommand->setLastResult($resultText);
 
-            CommandSchedulerFactory::createCommandHistory(($scheduledCommand));
+            CommandHistoryFactory::createCommandHistory(($scheduledCommand));
 
             // Disable any once-only commands
             if (empty($scheduledCommand->getCronExpression())) {

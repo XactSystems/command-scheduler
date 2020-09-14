@@ -8,7 +8,7 @@ use Xact\CommandScheduler\Entity\ScheduledCommandHistory;
 /**
  * Command scheduler factory class
  */
-class CommandSchedulerFactory
+class CommandHistoryFactory
 {
     /**
      * Create a ScheduledCommandHistory entity from a ScheduledCommand
