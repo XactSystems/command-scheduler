@@ -156,20 +156,29 @@ class SchedulerCommand extends Command
         /** @var ScheduledCommand $command */
         foreach ($this->em->getRepository(ScheduledCommand::class)->getActiveCommands() as $command) {
 
-            $execute = $command->getRunImmediately();
-            if(!$execute && !empty($command->getCronExpression())) {
-                $cron = CronExpression::factory($command->getCronExpression());
-                if ($cron->getNextRunDate($command->getLastRunAt()) <= new \DateTime()) {
-                    $execute = true;
+            try {
+                $execute = $command->getRunImmediately();
+                if (!$execute && !empty($command->getCronExpression())) {
+                    $cron = CronExpression::factory($command->getCronExpression());
+                    $lastRun = $command->getLastRunAt() ?? new \DateTime('1970-01-01');
+                    if ($cron->getNextRunDate($lastRun) <= new \DateTime()) {
+                        $execute = true;
+                    }
+                }
+
+                if ($execute) {
+                    $this->executeCommand($command);
+                }
+
+                if ($this->exceededMaxRuntime()) {
+                    break;
                 }
             }
-
-            if($execute) {
-                $this->executeCommand($command);
-            }
-
-            if ($this->exceededMaxRuntime()) {
-                break;
+            catch (\Exception $e) {
+                $this->output->writeln(
+                    '<error>An exception has occurred scheduling the command ' .
+                    $command->getCommand() . ': ' . $e->getMessage() . '</error>'
+                );
             }
         }
 
