@@ -40,9 +40,9 @@ class ScheduledCommand
     private $command;
 
     /**
-     * @ORM\Column(name="Arguments", type="string", nullable=true)
+     * @ORM\Column(name="Arguments", type="json_array", nullable=true)
      *
-     * @var string
+     * @var array
      */
     private $arguments;
 
@@ -169,18 +169,18 @@ class ScheduledCommand
     }
 
     /**
-     * @return string|null
+     * @return array|null
      */
-    public function getArguments(): ?string
+    public function getArguments(): ?array
     {
         return $this->arguments;
     }
 
     /**
-     * @param string $arguments
+     * @param array $arguments
      * @return ScheduledCommand
      */
-    public function setArguments(?string $arguments): ScheduledCommand
+    public function setArguments(?array $arguments): ScheduledCommand
     {
         $this->arguments = $arguments;
 

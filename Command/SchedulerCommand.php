@@ -6,8 +6,10 @@ use Cron\CronExpression;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\Client\ProducerInterface;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
@@ -61,16 +63,22 @@ class SchedulerCommand extends Command
     private $output;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
+
+    /**
      * EventSchedulerCommand constructor.
      *
      * @param ProducerInterface $enqueueProducer
      * @param EntityManagerInterface $entityManager
      */
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
     {
         parent::__construct(self::$defaultName);
 
         $this->em = $em;
+        $this->logger = $logger;
     }
 
     /**
@@ -172,7 +180,7 @@ class SchedulerCommand extends Command
                 }
 
                 if ($this->exceededMaxRuntime()) {
-                    break;
+                break;
                 }
             }
             catch (\Exception $e) {
@@ -194,6 +202,8 @@ class SchedulerCommand extends Command
      */
     protected function executeCommand(ScheduledCommand $scheduledCommand)
     {
+        $result = -1;
+        $resultText = '';
         try {
             $this->em->getConnection()->beginTransaction();
 
@@ -202,9 +212,12 @@ class SchedulerCommand extends Command
 
             $this->em->getConnection()->commit();
 
-            $input = new StringInput(
-                $scheduledCommand->getCommand() . ' ' . $scheduledCommand->getArguments() . ' --env=' . $this->input->getOption('env')
-            );
+            $command = $scheduledCommand->getCommand();
+            foreach ($scheduledCommand->getArguments() as $param) {
+                $command .= ' ' . escapeshellarg($param);
+            }
+            $command .= ' --env=' . $this->input->getOption('env');
+            $input = new StringInput($command);
 
             $output = new ConsoleOutput();
             // Disable interactive mode if the current command has no-interaction flag
@@ -218,7 +231,7 @@ class SchedulerCommand extends Command
             // Execute the command and retain the return code
             $this->output->writeln(
                 '<info>Execute</info> : <comment>' . $scheduledCommand->getCommand()
-                . ' ' . $scheduledCommand->getArguments() . '</comment>'
+                . ' ' . implode(',', $scheduledCommand->getArguments()) . '</comment>'
             );
             $result = $command->run($input, $output);
             $resultText = 'The command completed successfully';
@@ -228,8 +241,8 @@ class SchedulerCommand extends Command
         } catch (\Exception $e) {
             $resultText = $e->getMessage();
             $this->output->writeln("<error>{$e->getMessage()}</error>");
-            $this->output->writeln("<error>{$e->getTraceAsString()}</error>");
-            $result = -1;
+            $this->logger->critical($e->getMessage());
+            $this->logger->critical($e->getTraceAsString());
         } finally {
             if (false === $this->em->isOpen()) {
                 $output->writeln('<comment>Entity manager closed by the last command.</comment>');
