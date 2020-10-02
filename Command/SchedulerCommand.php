@@ -9,16 +9,15 @@ use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Winbox\Args;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Scheduler\CommandHistoryFactory;
-use Xact\CommandScheduler\Scheduler\CommandSchedulerFactory;
 
 class SchedulerCommand extends Command
 {
@@ -101,16 +100,16 @@ class SchedulerCommand extends Command
         $this->verbosity = $output->getVerbosity();
         $this->input = $input;
         $this->output = $output;
-        $this->maxRuntime = (integer) $input->getOption('max-runtime');
+        $this->maxRuntime = (int) $input->getOption('max-runtime');
         if ($this->maxRuntime < 0) {
             throw new InvalidArgumentException('The maximum runtime must be greater than or equal to zero.');
         }
 
-        $this->idleTime = (integer) $input->getOption('idle-time');
+        $this->idleTime = (int) $input->getOption('idle-time');
         if ($this->idleTime <= 0) {
             throw new InvalidArgumentException('Seconds to sleep when idle must be greater than zero.');
         }
-        $this->deleteOldJobsAfter = (integer) $input->getOption('delete-old-jobs-after');
+        $this->deleteOldJobsAfter = (int) $input->getOption('delete-old-jobs-after');
         if ($this->deleteOldJobsAfter < 0) {
             throw new InvalidArgumentException('Delete old jobs must be greater than or equal to zero.');
         }
@@ -118,6 +117,8 @@ class SchedulerCommand extends Command
 
     /**
      * {@inheritdoc}
+     *
+     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -128,10 +129,8 @@ class SchedulerCommand extends Command
 
     /**
      * Run the scheduled commands
-     *
-     * @return void
      */
-    protected function runCommands()
+    protected function runCommands(): void
     {
         $this->output->writeln('Running scheduled commands.');
 
@@ -152,19 +151,16 @@ class SchedulerCommand extends Command
 
     /**
      * Determine if the maximum runtime has been exceeded
-     *
-     * @return boolean
      */
     protected function exceededMaxRuntime(): bool
     {
         return (($this->maxRuntime > 0) && (time() - $this->startTime) > $this->maxRuntime);
     }
 
-    protected function processCommands()
+    protected function processCommands(): void
     {
         /** @var ScheduledCommand $command */
         foreach ($this->em->getRepository(ScheduledCommand::class)->getActiveCommands() as $command) {
-
             try {
                 $execute = $command->getRunImmediately();
                 if (!$execute && !empty($command->getCronExpression())) {
@@ -180,10 +176,9 @@ class SchedulerCommand extends Command
                 }
 
                 if ($this->exceededMaxRuntime()) {
-                break;
+                    break;
                 }
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $this->output->writeln(
                     '<error>An exception has occurred scheduling the command ' .
                     $command->getCommand() . ': ' . $e->getMessage() . '</error>'
@@ -197,10 +192,8 @@ class SchedulerCommand extends Command
 
     /**
      * Run the command
-     * 
-     * @param ScheduledCommand $scheduledCommand
      */
-    protected function executeCommand(ScheduledCommand $scheduledCommand)
+    protected function executeCommand(ScheduledCommand $scheduledCommand): void
     {
         $result = -1;
         $resultText = '';
@@ -214,7 +207,7 @@ class SchedulerCommand extends Command
 
             $command = $scheduledCommand->getCommand();
             foreach ($scheduledCommand->getArguments() as $param) {
-                $command .= ' ' . escapeshellarg($param);
+                $command .= ' ' . Args::escape($param);
             }
             $command .= ' --env=' . $this->input->getOption('env');
             $input = new StringInput($command);
@@ -270,10 +263,8 @@ class SchedulerCommand extends Command
 
     /**
      * Purge old once-only commands
-     *
-     * @return void
      */
-    protected function cleanUpOnceOnlyCommands()
+    protected function cleanUpOnceOnlyCommands(): void
     {
         if ($this->deleteOldJobsAfter > 0) {
             $this->em->getRepository(ScheduledCommand::class)->cleanUpOnceOnlyCommands($this->deleteOldJobsAfter);
