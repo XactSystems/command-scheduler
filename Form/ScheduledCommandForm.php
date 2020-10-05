@@ -20,10 +20,11 @@ use Xact\CommandScheduler\Entity\ScheduledCommand;
 class ScheduledCommandForm extends AbstractType
 {
     /**
-     * @param FormBuilderInterface $builder
-     * @param array                $options
+     * @param mixed[] $options
+     *
+     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->add('id', HiddenType::class)
             ->add('description', TextType::class, ['label' => 'Description', 'required' => true])
@@ -38,9 +39,8 @@ class ScheduledCommandForm extends AbstractType
     }
 
     /**
-     * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
             [
@@ -52,10 +52,8 @@ class ScheduledCommandForm extends AbstractType
 
     /**
      * Form prefix.
-     *
-     * @return string
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'scheduler_edit';
     }

@@ -25,7 +25,7 @@ class ControllerTest extends WebTestCase
      */
     private $client;
 
-    protected static function getKernelClass()
+    protected static function getKernelClass(): string
     {
         return TestKernel::class;
     }
@@ -61,7 +61,7 @@ class ControllerTest extends WebTestCase
     /**
      * @group controller
      */
-    public function testList()
+    public function testList(): void
     {
         /*
         $this->client->request('GET', '/command-scheduler/list');
@@ -73,7 +73,7 @@ class ControllerTest extends WebTestCase
     /**
      * @group controller
      */
-    public function testEdit()
+    public function testEdit(): void
     {
         /*
         $scheduledCommand = new ScheduledCommand();
@@ -117,7 +117,7 @@ class ControllerTest extends WebTestCase
     /**
      * @group controller
      */
-    public function testDisable()
+    public function testDisable(): void
     {
         /*
         $scheduledCommand = new ScheduledCommand();
@@ -141,7 +141,7 @@ class ControllerTest extends WebTestCase
     /**
      * @group controller
      */
-    public function testRun()
+    public function testRun(): void
     {
         /*
         $scheduledCommand = new ScheduledCommand();
@@ -162,4 +162,3 @@ class ControllerTest extends WebTestCase
         */
     }
 }
-

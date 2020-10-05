@@ -14,24 +14,21 @@ use Xact\CommandScheduler\Scheduler\CommandScheduler;
 class CommandSchedulerController extends AbstractController
 {
     /**
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     * 
      * @Route("/command-scheduler/list", name="xact_command_scheduler_list")
      */
-    function list(CommandScheduler $scheduler) {
+    public function list(CommandScheduler $scheduler): Response
+    {
         return $this->render('@XactCommandScheduler/index.html.twig', [
             'scheduledCommands' => $scheduler->getAll(),
         ]);
     }
 
     /**
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     * 
      * @Route("/command-scheduler/history/{id}", name="xact_command_scheduler_history")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
      */
-    function history(ScheduledCommand $command) {
+    public function history(ScheduledCommand $command): Response
+    {
         return $this->render('@XactCommandScheduler/history.html.twig', [
             'command' => $command,
         ]);
@@ -39,12 +36,6 @@ class CommandSchedulerController extends AbstractController
 
     /**
      * Edit a scheduled command
-     *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
      *
      * @Route("/command-scheduler/edit/{id}", name="xact_command_scheduler_edit")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
@@ -71,11 +62,6 @@ class CommandSchedulerController extends AbstractController
     /**
      * Delete a scheduled command
      *
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     *
      * @Route("/command-scheduler/delete/{id}", name="xact_command_scheduler_delete")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
      */
@@ -90,11 +76,6 @@ class CommandSchedulerController extends AbstractController
 
     /**
      * Disabled/enable a scheduled command
-     *
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
      *
      * @Route("/command-scheduler/disable/{id}", name="xact_command_scheduler_disable")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
@@ -112,11 +93,6 @@ class CommandSchedulerController extends AbstractController
     /**
      * Immediately run a scheduled command
      *
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     *
      * @Route("/command-scheduler/run/{id}", name="xact_command_scheduler_run")
      * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
      */
@@ -132,14 +108,10 @@ class CommandSchedulerController extends AbstractController
     /**
      * Create a new scheduled command
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     *
      * @Route("/command-scheduler/new", name="xact_command_scheduler_new")
      */
-    function new (Request $request, CommandScheduler $scheduler): Response {
+    public function new(Request $request, CommandScheduler $scheduler): Response
+    {
         $command = new ScheduledCommand();
 
         $form = $this->createForm(ScheduledCommandForm::class, $command);

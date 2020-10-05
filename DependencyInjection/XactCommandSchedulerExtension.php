@@ -9,10 +9,14 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class XactCommandSchedulerExtension extends Extension
 {
-    public function load(array $configs, ContainerBuilder $container)
+    /**
+     * @param mixed[] $configs
+     *
+     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+     */
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
     }
 }
-

@@ -28,16 +28,18 @@ class TestKernel extends Kernel
         }
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes)
+    protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
-        $confDir = $this->getProjectDir().'/Resources/config';
-        $routes->import($confDir.'/routing.yaml');
+        $confDir = $this->getProjectDir() . '/Resources/config';
+        $routes->import($confDir . '/routing.yaml');
     }
 
-    protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
+    /**
+     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+     */
+    protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader): void
     {
-        $confDir = $this->getProjectDir().'/Resources/config';
+        $confDir = $this->getProjectDir() . '/Resources/config';
         $loader->load($confDir . '/{test}/*.yaml', 'glob');
     }
 }
-

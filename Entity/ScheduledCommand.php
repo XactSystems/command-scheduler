@@ -14,83 +14,93 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ScheduledCommand
 {
-    //... Fields ...
+    public const STATUS_PENDING = 'PENDING';
+    public const STATUS_RUNNING = 'RUNNING';
+    public const STATUS_COMPLETED = 'COMPLETED';
+
     /**
+     * @var int
+     *
      * @ORM\Column(name="ID", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @var int
      */
     private $id;
 
     /**
-     * @ORM\Column(name="Description", type="string")
-     *
      * @var string
+     *
+     * @ORM\Column(name="Description", type="string")
      */
     private $description;
 
     /**
-     * @ORM\Column(name="Command", type="string")
-     *
      * @var string
+     *
+     * @ORM\Column(name="Command", type="string")
      */
     private $command;
 
     /**
-     * @ORM\Column(name="Arguments", type="string", nullable=true)
+     * @var array
      *
-     * @var string
+     * @ORM\Column(name="Arguments", type="json_array", nullable=true)
      */
     private $arguments;
 
     /**
-     * @ORM\Column(name="CronExpression", type="string", nullable=true)
-     *
      * @var string
+     *
+     * @ORM\Column(name="CronExpression", type="string", nullable=true)
      */
     private $cronExpression;
 
     /**
-     * @ORM\Column(name="Priority", type="integer")
-     *
      * @var int
+     *
+     * @ORM\Column(name="Priority", type="integer")
      */
     private $priority = 1;
 
     /**
-     * @ORM\Column(name="Disabled", type="boolean")
-     *
      * @var bool
+     *
+     * @ORM\Column(name="Disabled", type="boolean")
      */
     private $disabled = false;
 
     /**
-     * @ORM\Column(name="RunImmediately", type="boolean")
-     *
      * @var bool
+     *
+     * @ORM\Column(name="RunImmediately", type="boolean")
      */
     private $runImmediately = false;
 
     /**
-     * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
+     * @var string
      *
+     * @ORM\Column(name="Status", type="string", length=20, nullable=false)
+     */
+    private $status = self::STATUS_PENDING;
+
+    /**
      * @var \DateTime|null
+     *
+     * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
      */
     private $lastRunAt;
 
     /**
-     * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
-     *
      * @var integer
+     *
+     * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
      */
     private $lastResultCode;
 
     /**
-     * @ORM\Column(name="LastResult", type="text", nullable=true)
-     *
      * @var string
+     *
+     * @ORM\Column(name="LastResult", type="text", nullable=true)
      */
     private $lastResult;
 
@@ -111,7 +121,10 @@ class ScheduledCommand
     }
 
     /**
+<<<<<<< HEAD
      * @return int|null
+=======
+>>>>>>> 3.4
      */
     public function getId(): ?int
     {
@@ -119,8 +132,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param int $id
-     * @return ScheduledCommand
      */
     public function setId(int $id): ScheduledCommand
     {
@@ -130,7 +141,6 @@ class ScheduledCommand
     }
 
     /**
-     * @return string|null
      */
     public function getDescription(): ?string
     {
@@ -138,8 +148,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param string $description
-     * @return ScheduledCommand
      */
     public function setDescription(string $description): ScheduledCommand
     {
@@ -149,7 +157,6 @@ class ScheduledCommand
     }
 
     /**
-     * @return string|null
      */
     public function getCommand(): ?string
     {
@@ -157,8 +164,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param string $command
-     * @return ScheduledCommand
      */
     public function setCommand(string $command): ScheduledCommand
     {
@@ -168,18 +173,17 @@ class ScheduledCommand
     }
 
     /**
-     * @return string|null
+     * @return string[]|null
      */
-    public function getArguments(): ?string
+    public function getArguments(): ?array
     {
         return $this->arguments;
     }
 
     /**
-     * @param string $arguments
-     * @return ScheduledCommand
+     * @param string[] $arguments
      */
-    public function setArguments(?string $arguments): ScheduledCommand
+    public function setArguments(?array $arguments): ScheduledCommand
     {
         $this->arguments = $arguments;
 
@@ -187,7 +191,6 @@ class ScheduledCommand
     }
 
     /**
-     * @return string|null
      */
     public function getCronExpression(): ?string
     {
@@ -195,8 +198,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param string $cronExpression
-     * @return ScheduledCommand
      */
     public function setCronExpression(?string $cronExpression): ScheduledCommand
     {
@@ -206,7 +207,6 @@ class ScheduledCommand
     }
 
     /**
-     * @return int
      */
     public function getPriority(): int
     {
@@ -214,8 +214,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param int $priority
-     * @return ScheduledCommand
      */
     public function setPriority(int $priority): ScheduledCommand
     {
@@ -225,7 +223,6 @@ class ScheduledCommand
     }
 
     /**
-     * @return bool
      */
     public function getDisabled(): bool
     {
@@ -233,8 +230,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param bool $disabled
-     * @return ScheduledCommand
      */
     public function setDisabled(bool $disabled): ScheduledCommand
     {
@@ -244,7 +239,6 @@ class ScheduledCommand
     }
 
     /**
-     * @return bool
      */
     public function getRunImmediately(): bool
     {
@@ -252,8 +246,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param bool $runImmediately
-     * @return ScheduledCommand
      */
     public function setRunImmediately(bool $runImmediately): ScheduledCommand
     {
@@ -263,7 +255,22 @@ class ScheduledCommand
     }
 
     /**
-     * @return int|null
+     */
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    /**
+     */
+    public function setStatus(string $status): ScheduledCommand
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
      */
     public function getLastResultCode(): ?int
     {
@@ -272,7 +279,6 @@ class ScheduledCommand
 
     /**
      * @param string $lastResultCode
-     * @return ScheduledCommand
      */
     public function setLastResultCode(int $lastResultCode): ScheduledCommand
     {
@@ -282,7 +288,6 @@ class ScheduledCommand
     }
 
     /**
-     * @return string|null
      */
     public function getLastResult(): ?string
     {
@@ -290,8 +295,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param string $lastResult
-     * @return ScheduledCommand
      */
     public function setLastResult(string $lastResult): ScheduledCommand
     {
@@ -301,7 +304,6 @@ class ScheduledCommand
     }
 
     /**
-     * @return \DateTime|null
      */
     public function getLastRunAt(): ?\DateTime
     {
@@ -309,8 +311,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param \DateTime|null $lastRunAt
-     * @return ScheduledCommand
      */
     public function setLastRunAt(?\DateTime $lastRunAt): ScheduledCommand
     {
@@ -318,9 +318,8 @@ class ScheduledCommand
 
         return $this;
     }
-
+    
     /**
-     * @return \Doctrine\Common\Collections\Collection
      */
     public function getCommandHistory(): Collection
     {
@@ -328,8 +327,6 @@ class ScheduledCommand
     }
 
     /**
-     * @param \Doctrine\Common\Collections\Collection $commandHistory
-     * @return ScheduledCommand
      */
     public function setCommandHistory(Collection $commandHistory): ScheduledCommand
     {
