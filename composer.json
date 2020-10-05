@@ -24,13 +24,12 @@
         "php": "^7.1",
         "doctrine/doctrine-bundle": "^1.12",
         "doctrine/orm": "^2.6",
+        "dragonmantank/cron-expression": "~1.1",
         "sensio/framework-extra-bundle": "~5.4",
         "symfony/asset": "^3.4",
         "symfony/form": "^3.4",
-        "symfony/twig-bundle": "^3.4",
-        "symfony/yaml": "^3.4",
-        "dragonmantank/cron-expression": "~1.1",
-        "winbox/args": "^1.1"
+        "symfony/process": "^3.4",
+        "symfony/yaml": "^3.4"
     },
     "require-dev": {
         "symfony/debug-pack": "*",

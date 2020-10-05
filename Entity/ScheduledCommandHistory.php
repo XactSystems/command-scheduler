@@ -12,13 +12,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ScheduledCommandHistory
 {
-    //... Fields ...
     /**
+     * @var int
+     *
      * @ORM\Column(name="ID", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @var int
      */
     private $id;
 
@@ -31,28 +30,27 @@ class ScheduledCommandHistory
     private $scheduledCommand;
 
     /**
-     * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
-     *
      * @var \DateTime|null
+     *
+     * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
      */
     private $runAt;
 
     /**
-     * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
-     *
      * @var integer
+     *
+     * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
      */
     private $resultCode;
 
     /**
-     * @ORM\Column(name="LastResult", type="text", nullable=true)
-     *
      * @var string
+     *
+     * @ORM\Column(name="LastResult", type="text", nullable=true)
      */
     private $result;
 
     /**
-     * @return int|null
      */
     public function getId(): ?int
     {
@@ -60,8 +58,6 @@ class ScheduledCommandHistory
     }
 
     /**
-     * @param int $id
-     * @return ScheduledCommandHistory
      */
     public function setId(int $id): ScheduledCommandHistory
     {
@@ -71,7 +67,6 @@ class ScheduledCommandHistory
     }
 
     /**
-     * @return \Xact\CommandScheduler\Entity\ScheduledCommand
      */
     public function getScheduledCommand(): ScheduledCommand
     {
@@ -80,7 +75,6 @@ class ScheduledCommandHistory
 
     /**
      * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     * @return ScheduledCommandHistory
      */
     public function setScheduledCommand(ScheduledCommand $scheduledCommand): ScheduledCommandHistory
     {
@@ -90,7 +84,6 @@ class ScheduledCommandHistory
     }
 
     /**
-     * @return int|null
      */
     public function getResultCode(): ?int
     {
@@ -99,7 +92,6 @@ class ScheduledCommandHistory
 
     /**
      * @param string $lastResultCode
-     * @return ScheduledCommandHistory
      */
     public function setResultCode(int $resultCode): ScheduledCommandHistory
     {
@@ -109,7 +101,6 @@ class ScheduledCommandHistory
     }
 
     /**
-     * @return string|null
      */
     public function getResult(): ?string
     {
@@ -117,8 +108,6 @@ class ScheduledCommandHistory
     }
 
     /**
-     * @param string $result
-     * @return ScheduledCommandHistory
      */
     public function setResult(string $result): ScheduledCommandHistory
     {
@@ -128,7 +117,6 @@ class ScheduledCommandHistory
     }
 
     /**
-     * @return \DateTime|null
      */
     public function getRunAt(): ?\DateTime
     {
@@ -136,8 +124,6 @@ class ScheduledCommandHistory
     }
 
     /**
-     * @param \DateTime|null $runAt
-     * @return ScheduledCommandHistory
      */
     public function setRunAt(?\DateTime $runAt): ScheduledCommandHistory
     {

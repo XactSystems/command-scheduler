@@ -14,7 +14,7 @@ class CommandSchedulerTest extends KernelTestCase
      */
     private $entityManager;
 
-    protected static function getKernelClass()
+    protected static function getKernelClass(): string
     {
         return TestKernel::class;
     }
@@ -47,7 +47,7 @@ class CommandSchedulerTest extends KernelTestCase
     /**
      * @group scheduler
      */
-    public function testSet()
+    public function testSet(): void
     {
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 1');
@@ -67,7 +67,7 @@ class CommandSchedulerTest extends KernelTestCase
     /**
      * @group scheduler
      */
-    public function testDelete()
+    public function testDelete(): void
     {
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 2');
@@ -85,7 +85,7 @@ class CommandSchedulerTest extends KernelTestCase
     /**
      * @group scheduler
      */
-    public function testActive()
+    public function testActive(): void
     {
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 3');

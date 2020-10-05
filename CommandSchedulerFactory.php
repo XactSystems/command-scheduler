@@ -10,8 +10,10 @@ class CommandSchedulerFactory
 {
     /**
      * Create a command to run immediately
+     *
+     * @param string[]|null $arguments
      */
-    public static function createImmediateCommand(string $description, string $command, ?array $arguments) : ScheduledCommand
+    public static function createImmediateCommand(string $description, string $command, ?array $arguments): ScheduledCommand
     {
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription($description);
@@ -24,8 +26,10 @@ class CommandSchedulerFactory
 
     /**
      * Create a command scheduled by a CRON expression
+     *
+     * @param string[]|null $arguments
      */
-    public static function createCronCommand(string $cronExpression, string $description, string $command, ?array $arguments) : ScheduledCommand
+    public static function createCronCommand(string $cronExpression, string $description, string $command, ?array $arguments): ScheduledCommand
     {
         if (!CronExpression::isValidExpression($cronExpression)) {
             throw new InvalidArgumentException("The cron expression '{$cronExpression}' is invalid");

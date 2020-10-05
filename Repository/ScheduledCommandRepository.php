@@ -2,7 +2,6 @@
 
 namespace Xact\CommandScheduler\Repository;
 
-use Cron\CronExpression;
 use DateTime;
 use Doctrine\ORM\EntityRepository;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
@@ -15,24 +14,22 @@ class ScheduledCommandRepository extends EntityRepository
     /**
      * Return an array of active scheduled commands
      *
-     * @return array
+     * @return ScheduledCommand[]
      */
-    public function getActiveCommands():array
+    public function getActiveCommands(): array
     {
         return $this->getEntityManager()->createQuery(
             "SELECT c
             FROM XactCommandSchedulerBundle:ScheduledCommand c
-            WHERE c.disabled = false AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '')
+            WHERE c.disabled = false AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '') AND c.status = 'PENDING'
             ORDER BY c.priority DESC"
         )->getResult();
     }
 
     /**
      * Clean up old once-only commands
-     *
-     * @return void
      */
-    public function cleanUpOnceOnlyCommands(int $afterDays = 60)
+    public function cleanUpOnceOnlyCommands(int $afterDays = 60): void
     {
         $purgeDate = new DateTime("-{$afterDays} day");
 
@@ -45,4 +42,3 @@ class ScheduledCommandRepository extends EntityRepository
         ->execute();
     }
 }
-

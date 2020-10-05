@@ -20,6 +20,9 @@ class CommandLister
         $this->kernel = $kernel;
     }
 
+    /**
+     * @return string[]
+     */
     public function getCommandChoices(): array
     {
         $application = new Application($this->kernel);
@@ -34,4 +37,3 @@ class CommandLister
         return $choices;
     }
 }
-

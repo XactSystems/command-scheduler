@@ -15,12 +15,11 @@ class ControllerTest extends WebTestCase
     private $entityManager;
 
     /**
-     *
      * @var \Symfony\Bundle\FrameworkBundle\Client
      */
     private $client;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->client = static::createClient();
 
@@ -31,7 +30,7 @@ class ControllerTest extends WebTestCase
         $schemaTool->createSchema($metadata);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->entityManager->close();
         $this->entityManager = null;
@@ -39,7 +38,7 @@ class ControllerTest extends WebTestCase
         parent::tearDown();
     }
 
-    public function testList()
+    public function testList(): void
     {
         $this->client->request('GET', '/command-scheduler/list');
 
@@ -49,7 +48,7 @@ class ControllerTest extends WebTestCase
     /**
      * @group controller
      */
-    public function testEdit()
+    public function testEdit(): void
     {
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 1');
@@ -65,7 +64,7 @@ class ControllerTest extends WebTestCase
 
         $description = $crawler->filter('input[name="scheduler_edit[description]"]')->attr('value');
         $cronExpression = $crawler->filter('input[name="scheduler_edit[cronExpression]"]')->attr('value');
-        $this->assertEquals($description,'Test command 1');
+        $this->assertEquals($description, 'Test command 1');
         $this->assertEquals($cronExpression, '*/5 * * * *');
 
         $saveButtonNode = $crawler->selectButton('scheduler_edit[save]');
@@ -91,7 +90,7 @@ class ControllerTest extends WebTestCase
     /**
      * @group controller
      */
-    public function testDisable()
+    public function testDisable(): void
     {
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 2');
@@ -113,7 +112,7 @@ class ControllerTest extends WebTestCase
     /**
      * @group controller
      */
-    public function testRun()
+    public function testRun(): void
     {
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 3');
@@ -132,4 +131,3 @@ class ControllerTest extends WebTestCase
         $this->assertEquals(true, $updatedCommand->getRunImmediately());
     }
 }
-
