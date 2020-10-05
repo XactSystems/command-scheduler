@@ -12,9 +12,6 @@ class CommandHistoryFactory
 {
     /**
      * Create a ScheduledCommandHistory entity from a ScheduledCommand
-     *
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $scheduledCommand
-     * @return \Xact\CommandScheduler\Entity\ScheduledCommandHistory
      */
     public static function createCommandHistory(ScheduledCommand $scheduledCommand): ScheduledCommandHistory
     {

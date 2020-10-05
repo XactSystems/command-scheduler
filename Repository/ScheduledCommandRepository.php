@@ -42,4 +42,3 @@ class ScheduledCommandRepository extends EntityRepository
         ->execute();
     }
 }
-

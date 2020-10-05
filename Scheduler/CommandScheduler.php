@@ -25,9 +25,6 @@ class CommandScheduler
 
     /**
      * Get a scheduled command by ID
-     *
-     * @param integer $id
-     * @return \Xact\CommandScheduler\Entity\ScheduledCommand
      */
     public function get(int $id): ScheduledCommand
     {
@@ -36,9 +33,6 @@ class CommandScheduler
 
     /**
      * Update a scheduled command
-     *
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $scheduledCommand
-     * @return \Xact\CommandScheduler\Entity\ScheduledCommand
      */
     public function set(ScheduledCommand $scheduledCommand): ScheduledCommand
     {
@@ -50,11 +44,8 @@ class CommandScheduler
 
     /**
      * Delete a scheduled command
-     *
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $scheduledCommand
-     * @return void
      */
-    public function delete(ScheduledCommand $scheduledCommand)
+    public function delete(ScheduledCommand $scheduledCommand): void
     {
         $this->em->remove($scheduledCommand);
         $this->em->flush();
@@ -63,7 +54,7 @@ class CommandScheduler
     /**
      * Get an array of active commands
      *
-     * @return array
+     * @return ScheduledCommand[]
      */
     public function getActive(): array
     {
@@ -73,7 +64,7 @@ class CommandScheduler
     /**
      * Get an array of all commands
      *
-     * @return array
+     * @return ScheduledCommand[]
      */
     public function getAll(): array
     {
@@ -82,11 +73,6 @@ class CommandScheduler
 
     /**
      * Disable by ID
-     *
-     * @param integer $id
-     * @param boolean $disable
-     * 
-     * @return \Xact\CommandScheduler\Entity\ScheduledCommand
      */
     public function disable(int $id, bool $disable = true): ScheduledCommand
     {
@@ -99,11 +85,6 @@ class CommandScheduler
 
     /**
      * Run immediately by ID
-     *
-     * @param integer $id
-     * @param boolean $runImmediately
-     * 
-     * @return \Xact\CommandScheduler\Entity\ScheduledCommand
      */
     public function runImmediately(int $id, bool $runImmediately = true): ScheduledCommand
     {
@@ -114,4 +95,3 @@ class CommandScheduler
         return $scheduledCommand;
     }
 }
-

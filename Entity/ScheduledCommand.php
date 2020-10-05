@@ -170,7 +170,7 @@ class ScheduledCommand
     }
 
     /**
-     * @return array|null
+     * @return string[]|null
      */
     public function getArguments(): ?array
     {
@@ -178,7 +178,7 @@ class ScheduledCommand
     }
 
     /**
-     * @param array $arguments
+     * @param string[] $arguments
      */
     public function setArguments(?array $arguments): ScheduledCommand
     {
