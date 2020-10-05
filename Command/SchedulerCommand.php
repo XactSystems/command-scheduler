@@ -8,15 +8,12 @@ use Enqueue\Client\ProducerInterface;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Winbox\Args;
+use Symfony\Component\Process\Process;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
+use Xact\CommandScheduler\Scheduler\ActiveCommand;
 use Xact\CommandScheduler\Scheduler\CommandHistoryFactory;
 
 class SchedulerCommand extends Command
@@ -52,6 +49,11 @@ class SchedulerCommand extends Command
     private $deleteOldJobsAfter = 0;
 
     /**
+     * @var int
+     */
+    private $verbosity;
+
+    /**
      * @var \Symfony\Component\Console\Input\InputInterface;
      */
     private $input;
@@ -65,6 +67,11 @@ class SchedulerCommand extends Command
      * @var \Psr\Log\LoggerInterface
      */
     private $logger;
+
+    /**
+     * @var ActiveCommand[]
+     */
+    private $activeCommands = [];
 
     /**
      * EventSchedulerCommand constructor.
@@ -132,7 +139,9 @@ class SchedulerCommand extends Command
      */
     protected function runCommands(): void
     {
-        $this->output->writeln('Running scheduled commands.');
+        if ($this->verbosity !== OutputInterface::VERBOSITY_QUIET) {
+            $this->output->writeln('Running scheduled commands.');
+        }
 
         while (true) {
             if ($this->exceededMaxRuntime()) {
@@ -141,12 +150,21 @@ class SchedulerCommand extends Command
 
             $this->processCommands();
 
+            $this->checkActiveCommands();
+
             $this->cleanUpOnceOnlyCommands();
 
             sleep($this->idleTime);
         }
 
-        $this->output->writeln('The command scheduler has terminated.');
+        while (! empty($this->activeCommands)) {
+            sleep(5);
+            $this->checkActiveCommands();
+        }
+
+        if ($this->verbosity !== OutputInterface::VERBOSITY_QUIET) {
+            $this->output->writeln('The command scheduler has terminated.');
+        }
     }
 
     /**
@@ -195,70 +213,115 @@ class SchedulerCommand extends Command
      */
     protected function executeCommand(ScheduledCommand $scheduledCommand): void
     {
-        $result = -1;
-        $resultText = '';
         try {
             $this->em->getConnection()->beginTransaction();
 
             $scheduledCommand->setLastRunAt(new \DateTime());
+            $scheduledCommand->setStatus(ScheduledCommand::STATUS_RUNNING);
             $this->em->flush();
 
             $this->em->getConnection()->commit();
 
-            $command = $scheduledCommand->getCommand();
+            $commandArguments = $this->getFixedCommandArguments();
+            $commandArguments[] = $scheduledCommand->getCommand();
             foreach ($scheduledCommand->getArguments() as $param) {
-                $command .= ' ' . Args::escape($param);
-            }
-            $command .= ' --env=' . $this->input->getOption('env');
-            $input = new StringInput($command);
-
-            $output = new ConsoleOutput();
-            // Disable interactive mode if the current command has no-interaction flag
-            if (true === $input->hasParameterOption(['--no-interaction', '-n'])) {
-                $input->setInteractive(false);
-                $output = new NullOutput();
+                $commandArguments[] = $param;
             }
 
-            $command = $this->getApplication()->find($scheduledCommand->getCommand());
+            $process = new Process($commandArguments);
+            $process->start();
 
-            // Execute the command and retain the return code
-            $this->output->writeln(
-                '<info>Execute</info> : <comment>' . $scheduledCommand->getCommand()
-                . ' ' . implode(',', $scheduledCommand->getArguments()) . '</comment>'
-            );
-            $result = $command->run($input, $output);
-            $resultText = 'The command completed successfully';
-        } catch (CommandNotFoundException $e) {
-            $resultText = $e->getMessage();
-            $this->output->writeln("<error>{$e->getMessage()}</error>");
+            $this->activeCommands[] = new ActiveCommand($process, $scheduledCommand);
+
+            if ($this->verbosity !== OutputInterface::VERBOSITY_QUIET) {
+                $executeMessage = '<info>Execute</info> : <comment>' . $scheduledCommand->getDescription()
+                    . ($this->verbosity > OutputInterface::VERBOSITY_NORMAL ? implode(',', $scheduledCommand->getArguments()) : '')
+                    . '</comment>';
+                $this->output->writeln($executeMessage);
+            }
         } catch (\Exception $e) {
-            $resultText = $e->getMessage();
             $this->output->writeln("<error>{$e->getMessage()}</error>");
             $this->logger->critical($e->getMessage());
             $this->logger->critical($e->getTraceAsString());
         } finally {
-            if (false === $this->em->isOpen()) {
-                $output->writeln('<comment>Entity manager closed by the last command.</comment>');
-                $this->em = $this->em->create($this->em->getConnection(), $this->em->getConfiguration());
-            }
-
-            $scheduledCommand->setRunImmediately(false);
-            $scheduledCommand->setLastResultCode($result);
-            $scheduledCommand->setLastResult($resultText);
-
-            CommandHistoryFactory::createCommandHistory(($scheduledCommand));
-
-            // Disable any once-only commands
-            if (empty($scheduledCommand->getCronExpression())) {
-                $scheduledCommand->setDisabled(true);
-            }
-
-            $this->em->flush();
-
             unset($command);
         }
 
         gc_collect_cycles();
+    }
+
+    /**
+     * Check for terminated active commands, update them, and remove them from the list
+     */
+    protected function checkActiveCommands(): void
+    {
+        foreach ($this->activeCommands as $index => $ac) {
+            if ($ac->getProcess()->isRunning()) {
+                continue;
+            }
+
+            $process = $ac->getProcess();
+            $scheduledCommand = $this->em->find(ScheduledCommand::class, $ac->getScheduledCommand()->getId());
+
+            if (null !== $scheduledCommand) {
+                if ($this->verbosity != OutputInterface::VERBOSITY_QUIET) {
+                    $this->output->writeln($scheduledCommand->getDescription() . ' completed with exit code ' . $ac->getProcess()->getExitCode() . '.');
+                }
+                
+                $resultTest = $process->getOutput();
+                if (empty($process->getExitCode()) && empty($resultTest)) {
+                    $resultTest = 'The command completed successfully.';
+                }
+                $scheduledCommand->setRunImmediately(false);
+                $scheduledCommand->setLastResultCode($process->getExitCode());
+                $scheduledCommand->setLastResult($resultTest);
+
+                CommandHistoryFactory::createCommandHistory(($scheduledCommand));
+
+                // Disable any once-only commands
+                if (empty($scheduledCommand->getCronExpression())) {
+                    $scheduledCommand->setDisabled(true);
+                    $scheduledCommand->setStatus(ScheduledCommand::STATUS_COMPLETED);
+                } else {
+                    $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
+                }
+
+                $this->em->flush();
+            }
+
+            unset($this->activeCommands[$index]);
+        }
+    }
+
+    /**
+     * Return the fixed command arguments
+     *
+     * @return string[]
+     */
+    protected function getFixedCommandArguments(): array
+    {
+        $args = [
+            PHP_BINARY,
+            $_SERVER['argv'][0],
+            '--env=' . $this->input->getOption('env')
+        ];
+
+        switch ($this->verbosity) {
+            case OutputInterface::VERBOSITY_QUIET:
+                $args[] = '-q';
+                break;
+            case OutputInterface::VERBOSITY_VERBOSE:
+                $args[] = '-v';
+                break;
+            case OutputInterface::VERBOSITY_VERY_VERBOSE:
+                $args[] = '-vv';
+                break;
+            case OutputInterface::VERBOSITY_DEBUG:
+                $args[] = '-vvv';
+                break;
+        }
+
+        return $args;
     }
 
     /**
