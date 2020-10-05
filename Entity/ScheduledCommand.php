@@ -121,10 +121,6 @@ class ScheduledCommand
     }
 
     /**
-<<<<<<< HEAD
-     * @return int|null
-=======
->>>>>>> 3.4
      */
     public function getId(): ?int
     {
