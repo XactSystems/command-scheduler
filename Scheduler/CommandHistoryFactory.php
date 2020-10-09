@@ -19,6 +19,7 @@ class CommandHistoryFactory
         $history->setScheduledCommand($scheduledCommand);
         $history->setResultCode($scheduledCommand->getLastResultCode());
         $history->setResult($scheduledCommand->getLastResult());
+        $history->setError($scheduledCommand->getLastError());
         $history->setRunAt($scheduledCommand->getLastRunAt());
         $scheduledCommand->getCommandHistory()->add($history);
 

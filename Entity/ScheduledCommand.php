@@ -106,6 +106,13 @@ class ScheduledCommand
     private $lastResult;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="LastError", type="text", nullable=true)
+     */
+    private $lastError;
+
+    /**
      * @var Collection
      *
      * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade="all", orphanRemoval=true)
@@ -296,6 +303,22 @@ class ScheduledCommand
     public function setLastResult(string $lastResult): ScheduledCommand
     {
         $this->lastResult = $lastResult;
+
+        return $this;
+    }
+
+    /**
+     */
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
+    }
+
+    /**
+     */
+    public function setLastError(string $lastError): ScheduledCommand
+    {
+        $this->lastError = $lastError;
 
         return $this;
     }

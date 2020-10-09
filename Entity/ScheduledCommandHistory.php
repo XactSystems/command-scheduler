@@ -51,6 +51,13 @@ class ScheduledCommandHistory
     private $result;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="LastError", type="text", nullable=true)
+     */
+    private $error;
+
+    /**
      */
     public function getId(): ?int
     {
@@ -112,6 +119,22 @@ class ScheduledCommandHistory
     public function setResult(string $result): ScheduledCommandHistory
     {
         $this->result = $result;
+
+        return $this;
+    }
+
+    /**
+     */
+    public function getError(): ?string
+    {
+        return $this->error;
+    }
+
+    /**
+     */
+    public function setError(string $error): ScheduledCommandHistory
+    {
+        $this->error = $error;
 
         return $this;
     }
