@@ -257,6 +257,21 @@ class SchedulerCommand extends Command
     {
         foreach ($this->activeCommands as $index => $ac) {
             if ($ac->getProcess()->isRunning()) {
+                // Keep the output and error updated if verbose
+                if ($this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
+                    $description = $ac->getScheduledCommand()->getDescription();
+                    $output = $ac->getProcess()->getIncrementalOutput();
+                    $error = $ac->getProcess()->getIncrementalErrorOutput();
+
+                    if (!empty($output)) {
+                        $this->output->writeln("{$description}:" . str_replace("\n", "\n{$description}:", $output));
+                    }
+
+                    if (!empty($error)) {
+                        $this->output->writeln("<error>{$description}:" . str_replace("\n", "\n{$description}:", $error) . '</error>');
+                    }
+                }
+
                 continue;
             }
 
@@ -275,8 +290,9 @@ class SchedulerCommand extends Command
                 $scheduledCommand->setRunImmediately(false);
                 $scheduledCommand->setLastResultCode($process->getExitCode());
                 $scheduledCommand->setLastResult($resultTest);
+                $scheduledCommand->setLastError($process->getErrorOutput());
 
-                CommandHistoryFactory::createCommandHistory(($scheduledCommand));
+                CommandHistoryFactory::createCommandHistory($scheduledCommand);
 
                 // Disable any once-only commands
                 if (empty($scheduledCommand->getCronExpression())) {
