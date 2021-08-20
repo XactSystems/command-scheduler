@@ -12,7 +12,8 @@
 					<th>&nbsp;</th>
 					<th>{{ "Description"|trans }}</th>
 					<th>{{ "Command"|trans }}</th>
-					<th>{{ "Cron Expression"|trans }}</th>
+					<th>{{ "Cron Exp."|trans }}</th>
+					<th>{{ "Run At"|trans }}</th>
 					<th>{{ "Last Run At"|trans }}</th>
 					<th>{{ "Last Result"|trans }}</th>
 					<th>{{ "Actions"|trans }}</th>
@@ -41,12 +42,14 @@
 							{{ command.cronExpression }}
 						</td>
 						<td>
+							{{ command.runAt|date( "d/m/Y H:i:s" ) }}
+						</td>
+						<td>
 							{{ command.lastRunAt|date( "d/m/Y H:i:s" ) }}
 						</td>
 						<td>
 							{{ command.lastResult }}
 						</td>
-						<td style="min-width: 90px;">
 						<td style="min-width: 110px;">
 							<a href="{{ path('xact_command_scheduler_history', {'id': command.id}) }}">
 								<i class="text-secondary fas fa-list-alt"></i>
