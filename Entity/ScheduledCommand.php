@@ -30,7 +30,7 @@ class ScheduledCommand
     /**
      * @var string
      *
-     * @ORM\Column(name="Description", type="string")
+     * @ORM\Column(name="Description", type="string", nullable=true)
      */
     private $description;
 
@@ -51,9 +51,30 @@ class ScheduledCommand
     /**
      * @var string
      *
+     * @ORM\Column(name="Data", type="string")
+     */
+    private $data;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="ClearData", type="boolean")
+     */
+    private $clearData = true;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="CronExpression", type="string", nullable=true)
      */
     private $cronExpression;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="RunAt", type="datetime", nullable=true)
+     */
+    private $runAt;
 
     /**
      * @var int
@@ -74,7 +95,7 @@ class ScheduledCommand
      *
      * @ORM\Column(name="RunImmediately", type="boolean")
      */
-    private $runImmediately = false;
+    private $runImmediately = true;
 
     /**
      * @var string
@@ -111,57 +132,47 @@ class ScheduledCommand
      */
     private $commandHistory;
 
-
     /**
-     * Constructor
+     * @param string[] $arguments
      */
-    public function __construct()
+    public function __construct(string $command = '', ?array $arguments = [], ?string $data = null)
     {
+        $this->command = $command;
+        $this->arguments = $arguments ?? [];
+        $this->data = $data;
         $this->commandHistory = new ArrayCollection();
     }
 
-    /**
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     */
-    public function setId(int $id): ScheduledCommand
+    public function setId(int $id): self
     {
         $this->id = $id;
 
         return $this;
     }
 
-    /**
-     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     */
-    public function setDescription(string $description): ScheduledCommand
+    public function setDescription(string $description): self
     {
         $this->description = $description;
 
         return $this;
     }
 
-    /**
-     */
     public function getCommand(): ?string
     {
         return $this->command;
     }
 
-    /**
-     */
-    public function setCommand(string $command): ScheduledCommand
+    public function setCommand(string $command): self
     {
         $this->command = $command;
 
@@ -179,152 +190,175 @@ class ScheduledCommand
     /**
      * @param string[] $arguments
      */
-    public function setArguments(?array $arguments): ScheduledCommand
+    public function setArguments(?array $arguments): self
     {
         $this->arguments = $arguments;
 
         return $this;
     }
 
-    /**
-     */
+    public function getData(): ?string
+    {
+        return $this->data;
+    }
+
+    public function setData(?string $data): self
+    {
+        $this->data =  $data;
+
+        return $this;
+    }
+
+    public function getClearData(): ?bool
+    {
+        return $this->clearData;
+    }
+
+    public function setClearData(bool $clearData): self
+    {
+        $this->clearData =  $clearData;
+
+        return $this;
+    }
+
     public function getCronExpression(): ?string
     {
         return $this->cronExpression;
     }
 
-    /**
-     */
-    public function setCronExpression(?string $cronExpression): ScheduledCommand
+    public function setCronExpression(?string $cronExpression): self
     {
         $this->cronExpression = $cronExpression;
+        if ($this->cronExpression) {
+            $this->runAt = null;
+            $this->runImmediately = false;
+        }
 
         return $this;
     }
 
-    /**
-     */
+    public function getRunAt(): ?\DateTime
+    {
+        return $this->runAt;
+    }
+
+    public function setRunAt(?\DateTime $runAt): self
+    {
+        $this->runAt = $runAt;
+        if ($this->runAt) {
+            $this->cronExpression = null;
+            $this->runImmediately = false;
+        }
+
+        return $this;
+    }
+
     public function getPriority(): int
     {
         return $this->priority;
     }
 
-    /**
-     */
-    public function setPriority(int $priority): ScheduledCommand
+    public function setPriority(int $priority): self
     {
         $this->priority = $priority;
 
         return $this;
     }
 
-    /**
-     */
     public function getDisabled(): bool
     {
         return $this->disabled;
     }
 
-    /**
-     */
-    public function setDisabled(bool $disabled): ScheduledCommand
+    public function setDisabled(bool $disabled): self
     {
         $this->disabled = $disabled;
 
         return $this;
     }
 
-    /**
-     */
     public function getRunImmediately(): bool
     {
         return $this->runImmediately;
     }
 
-    /**
-     */
-    public function setRunImmediately(bool $runImmediately): ScheduledCommand
+    public function setRunImmediately(bool $runImmediately): self
     {
         $this->runImmediately = $runImmediately;
+        if ($this->runImmediately) {
+            $this->cronExpression = null;
+            $this->runAt = null;
+        }
 
         return $this;
     }
 
-    /**
-     */
     public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    /**
-     */
-    public function setStatus(string $status): ScheduledCommand
+    public function setStatus(string $status): self
     {
         $this->status = $status;
 
         return $this;
     }
 
-    /**
-     */
     public function getLastResultCode(): ?int
     {
         return $this->lastResultCode;
     }
 
-    /**
-     * @param string $lastResultCode
-     */
-    public function setLastResultCode(int $lastResultCode): ScheduledCommand
+    public function setLastResultCode(int $lastResultCode): self
     {
         $this->lastResultCode = $lastResultCode;
 
         return $this;
     }
 
-    /**
-     */
     public function getLastResult(): ?string
     {
         return $this->lastResult;
     }
 
-    /**
-     */
-    public function setLastResult(string $lastResult): ScheduledCommand
+    public function setLastResult(string $lastResult): self
     {
         $this->lastResult = $lastResult;
 
         return $this;
     }
 
-    /**
-     */
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
+    }
+
+    public function setLastError(string $lastError): self
+    {
+        $this->lastError = $lastError;
+
+        return $this;
+    }
+
     public function getLastRunAt(): ?\DateTime
     {
         return $this->lastRunAt;
     }
 
-    /**
-     */
-    public function setLastRunAt(?\DateTime $lastRunAt): ScheduledCommand
+    public function setLastRunAt(?\DateTime $lastRunAt): self
     {
         $this->lastRunAt = $lastRunAt;
 
         return $this;
     }
-    
-    /**
-     */
+
     public function getCommandHistory(): Collection
     {
         return $this->commandHistory;
     }
 
-    /**
-     */
-    public function setCommandHistory(Collection $commandHistory): ScheduledCommand
+    public function setCommandHistory(Collection $commandHistory): self
     {
         $this->commandHistory = $commandHistory;
 

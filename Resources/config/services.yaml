@@ -7,7 +7,7 @@ services:
     Xact\CommandScheduler\:
         public: true
         resource: '../../*'
-        exclude: '../../{DependencyInjection,Entity,Repository,Resources,Scheduler,Tests}'
+        exclude: '../../{DependencyInjection,Entity,Resources,Scheduler,Tests}'
 
     Xact\CommandScheduler\Command\:
         public: true

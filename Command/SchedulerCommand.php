@@ -6,24 +6,17 @@ use Cron\CronExpression;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\Client\ProducerInterface;
 use InvalidArgumentException;
-<<<<<<< HEAD
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\CommandNotFoundException;
-=======
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
->>>>>>> 3.4
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
-<<<<<<< HEAD
 use Xact\CommandScheduler\Scheduler\CommandSchedulerFactory;
-=======
+use Xact\CommandScheduler\Repository\ScheduledCommandRepository;
 use Xact\CommandScheduler\Scheduler\ActiveCommand;
 use Xact\CommandScheduler\Scheduler\CommandHistoryFactory;
->>>>>>> 3.4
 
 class SchedulerCommand extends Command
 {
@@ -58,14 +51,11 @@ class SchedulerCommand extends Command
     private $deleteOldJobsAfter = 0;
 
     /**
-<<<<<<< HEAD
-=======
      * @var int
      */
     private $verbosity;
 
     /**
->>>>>>> 3.4
      * @var \Symfony\Component\Console\Input\InputInterface;
      */
     private $input;
@@ -74,6 +64,11 @@ class SchedulerCommand extends Command
      * @var \Symfony\Component\Console\Output\OutputInterface
      */
     private $output;
+
+    /**
+     * @var \Xact\CommandScheduler\Repository\ScheduledCommandRepository
+     */
+    private $commandRepository;
 
     /**
      * @var \Psr\Log\LoggerInterface
@@ -91,11 +86,12 @@ class SchedulerCommand extends Command
      * @param ProducerInterface $enqueueProducer
      * @param EntityManagerInterface $entityManager
      */
-    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, ScheduledCommandRepository $commandRepository, LoggerInterface $logger)
     {
         parent::__construct(self::$defaultName);
 
         $this->em = $em;
+        $this->commandRepository = $commandRepository;
         $this->logger = $logger;
     }
 
@@ -128,11 +124,7 @@ class SchedulerCommand extends Command
         if ($this->idleTime <= 0) {
             throw new InvalidArgumentException('Seconds to sleep when idle must be greater than zero.');
         }
-<<<<<<< HEAD
-        $this->deleteOldJobsAfter = (integer) $input->getOption('delete-old-jobs-after');
-=======
         $this->deleteOldJobsAfter = (int) $input->getOption('delete-old-jobs-after');
->>>>>>> 3.4
         if ($this->deleteOldJobsAfter < 0) {
             throw new InvalidArgumentException('Delete old jobs must be greater than or equal to zero.');
         }
@@ -166,11 +158,6 @@ class SchedulerCommand extends Command
 
             $this->processCommands();
 
-<<<<<<< HEAD
-            $this->cleanUpOnceOnlyCommands();
-
-            sleep($this->idleTime);
-=======
             $this->checkActiveCommands();
 
             $this->cleanUpOnceOnlyCommands();
@@ -181,7 +168,6 @@ class SchedulerCommand extends Command
         while (! empty($this->activeCommands)) {
             sleep(5);
             $this->checkActiveCommands();
->>>>>>> 3.4
         }
 
         if ($this->verbosity !== OutputInterface::VERBOSITY_QUIET) {
@@ -199,19 +185,19 @@ class SchedulerCommand extends Command
 
     protected function processCommands(): void
     {
-        /** @var ScheduledCommand $command */
-        foreach ($this->em->getRepository(ScheduledCommand::class)->getActiveCommands() as $command) {
+        $tNow = new \DateTime();
+        foreach ($this->commandRepository->getActiveCommands() as $command) {
             try {
                 $execute = $command->getRunImmediately();
                 if (!$execute && !empty($command->getCronExpression())) {
                     $cron = CronExpression::factory($command->getCronExpression());
                     $lastRun = $command->getLastRunAt() ?? new \DateTime('1970-01-01');
-                    if ($cron->getNextRunDate($lastRun) <= new \DateTime()) {
+                    if ($cron->getNextRunDate($lastRun) <= $tNow) {
                         $execute = true;
                     }
                 }
 
-                if ($execute) {
+                if ($execute || $command->getRunAt() <= $tNow) {
                     $this->executeCommand($command);
                 }
 
@@ -244,7 +230,7 @@ class SchedulerCommand extends Command
 
             $this->em->getConnection()->commit();
 
-            $commandArguments = $this->getFixedCommandArguments();
+            $commandArguments = $this->getFixedCommandArguments($scheduledCommand);
             $commandArguments[] = $scheduledCommand->getCommand();
             foreach ($scheduledCommand->getArguments() as $param) {
                 $commandArguments[] = $param;
@@ -256,7 +242,8 @@ class SchedulerCommand extends Command
             $this->activeCommands[] = new ActiveCommand($process, $scheduledCommand);
 
             if ($this->verbosity !== OutputInterface::VERBOSITY_QUIET) {
-                $executeMessage = '<info>Execute</info> : <comment>' . $scheduledCommand->getDescription()
+                $description = $scheduledCommand->getDescription() ?? $scheduledCommand->getCommand();
+                $executeMessage = '<info>Execute</info> : <comment>' . $description
                     . ($this->verbosity > OutputInterface::VERBOSITY_NORMAL ? implode(',', $scheduledCommand->getArguments()) : '')
                     . '</comment>';
                 $this->output->writeln($executeMessage);
@@ -279,24 +266,35 @@ class SchedulerCommand extends Command
     {
         foreach ($this->activeCommands as $index => $ac) {
             if ($ac->getProcess()->isRunning()) {
+                // Keep the output and error updated if verbose
+                if ($this->verbosity > OutputInterface::VERBOSITY_NORMAL) {
+                    $description = $ac->getScheduledCommand()->getDescription() ?? $ac->getScheduledCommand()->getCommand();
+                    $output = $ac->getProcess()->getIncrementalOutput();
+                    $error = $ac->getProcess()->getIncrementalErrorOutput();
+
+                    if (!empty($output)) {
+                        $this->output->writeln("{$description}:" . str_replace("\n", "\n{$description}:", $output));
+                    }
+
+                    if (!empty($error)) {
+                        $this->output->writeln("<error>{$description}:" . str_replace("\n", "\n{$description}:", $error) . '</error>');
+                    }
+                }
+
                 continue;
             }
 
             $process = $ac->getProcess();
-            $scheduledCommand = $this->em->find(ScheduledCommand::class, $ac->getScheduledCommand()->getId());
+            $scheduledCommand = $this->commandRepository->findById($ac->getScheduledCommand()->getId());
 
-<<<<<<< HEAD
             CommandSchedulerFactory::createCommandHistory($scheduledCommand);
 
-            // Disable any once-only commands
-            if (empty($scheduledCommand->getCronExpression())) {
-                $scheduledCommand->setDisabled(true);
-=======
             if (null !== $scheduledCommand) {
                 if ($this->verbosity != OutputInterface::VERBOSITY_QUIET) {
-                    $this->output->writeln($scheduledCommand->getDescription() . ' completed with exit code ' . $ac->getProcess()->getExitCode() . '.');
+                    $description = $scheduledCommand->getDescription() ?? $scheduledCommand->getCommand();
+                    $this->output->writeln($description . ' completed with exit code ' . $ac->getProcess()->getExitCode() . '.');
                 }
-                
+
                 $resultTest = $process->getOutput();
                 if (empty($process->getExitCode()) && empty($resultTest)) {
                     $resultTest = 'The command completed successfully.';
@@ -314,9 +312,11 @@ class SchedulerCommand extends Command
                 } else {
                     $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
                 }
+                if ($scheduledCommand->getClearData()) {
+                    $scheduledCommand->setData(null);
+                }
 
                 $this->em->flush();
->>>>>>> 3.4
             }
 
             unset($this->activeCommands[$index]);
@@ -328,12 +328,13 @@ class SchedulerCommand extends Command
      *
      * @return string[]
      */
-    protected function getFixedCommandArguments(): array
+    protected function getFixedCommandArguments(ScheduledCommand $scheduledCommand): array
     {
         $args = [
             PHP_BINARY,
             $_SERVER['argv'][0],
-            '--env=' . $this->input->getOption('env')
+            '--env=' . $this->input->getOption('env'),
+            '--command-id=' . $scheduledCommand->getId(),
         ];
 
         switch ($this->verbosity) {
@@ -360,7 +361,7 @@ class SchedulerCommand extends Command
     protected function cleanUpOnceOnlyCommands(): void
     {
         if ($this->deleteOldJobsAfter > 0) {
-            $this->em->getRepository(ScheduledCommand::class)->cleanUpOnceOnlyCommands($this->deleteOldJobsAfter);
+            $this->commandRepository->cleanUpOnceOnlyCommands($this->deleteOldJobsAfter);
         }
     }
 }
