@@ -26,8 +26,8 @@ class CommandSchedulerTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $this->entityManager = self::$container->get('doctrine')->getManager('test');
-        
+        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager('test');
+
         $schemaTool = new SchemaTool($this->entityManager);
         $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
         $schemaTool->createSchema($metadata);

@@ -302,6 +302,7 @@ class SchedulerCommand extends Command
                 $scheduledCommand->setRunImmediately(false);
                 $scheduledCommand->setLastResultCode($process->getExitCode());
                 $scheduledCommand->setLastResult($resultTest);
+                $scheduledCommand->setLastError($process->getErrorOutput());
 
                 CommandHistoryFactory::createCommandHistory(($scheduledCommand));
 

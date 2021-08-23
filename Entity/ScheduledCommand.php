@@ -126,6 +126,13 @@ class ScheduledCommand
     private $lastResult;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="LastError", type="text", nullable=true)
+     */
+    private $lastError;
+
+    /**
      * @var Collection
      *
      * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade="all", orphanRemoval=true)
