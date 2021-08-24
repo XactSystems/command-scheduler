@@ -135,7 +135,7 @@ class ScheduledCommand
     /**
      * @var Collection
      *
-     * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade="all", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade={"all"}, orphanRemoval=true)
      */
     private $commandHistory;
 

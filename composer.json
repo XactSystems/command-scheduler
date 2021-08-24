@@ -1,5 +1,5 @@
 {
-    "name": "local/command-scheduler",
+    "name": "xactsystems/command-scheduler",
     "description": "A Symfony command scheduler.",
     "type": "symfony-bundle",
     "license": "MIT",
@@ -35,5 +35,11 @@
     "require-dev": {
         "symfony/debug-pack": "*",
         "symfony/test-pack": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "3.4.*"
+        }
     }
 }

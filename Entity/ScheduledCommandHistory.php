@@ -34,28 +34,28 @@ class ScheduledCommandHistory
      *
      * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
      */
-    private $runAt;
+    private $lastRunAt;
 
     /**
      * @var integer
      *
      * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
      */
-    private $resultCode;
+    private $lastResultCode;
 
     /**
      * @var string
      *
      * @ORM\Column(name="LastResult", type="text", nullable=true)
      */
-    private $result;
+    private $lastResult;
 
     /**
      * @var string
      *
      * @ORM\Column(name="LastError", type="text", nullable=true)
      */
-    private $error;
+    private $lastError;
 
     public function getId(): ?int
     {
@@ -81,38 +81,50 @@ class ScheduledCommandHistory
         return $this;
     }
 
-    public function getResultCode(): ?int
+    public function getLastResultCode(): ?int
     {
-        return $this->resultCode;
+        return $this->lastResultCode;
     }
 
-    public function setResultCode(int $resultCode): self
+    public function setLastResultCode(?int $lastResultCode): self
     {
-        $this->resultCode = $resultCode;
+        $this->lastResultCode = $lastResultCode;
 
         return $this;
     }
 
-    public function getResult(): ?string
+    public function getLastResult(): ?string
     {
-        return $this->result;
+        return $this->lastResult;
     }
 
-    public function setResult(string $result): self
+    public function setLastResult(?string $lastResult): self
     {
-        $this->result = $result;
+        $this->lastResult = $lastResult;
 
         return $this;
     }
 
-    public function getRunAt(): ?\DateTime
+    public function getLastError(): ?string
     {
-        return $this->runAt;
+        return $this->lastError;
     }
 
-    public function setRunAt(?\DateTime $runAt): self
+    public function setLastError(?string $lastError): self
     {
-        $this->runAt = $runAt;
+        $this->lastError = $lastError;
+
+        return $this;
+    }
+
+    public function getLastRunAt(): ?\DateTime
+    {
+        return $this->lastRunAt;
+    }
+
+    public function setLastRunAt(?\DateTime $lastRunAt): self
+    {
+        $this->lastRunAt = $lastRunAt;
 
         return $this;
     }

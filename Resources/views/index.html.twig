@@ -42,10 +42,10 @@
 							{{ command.cronExpression }}
 						</td>
 						<td>
-							{{ command.runAt|date( "d/m/Y H:i:s" ) }}
+							{{ command.runAt is empty ? "" : command.runAt|date( "d/m/Y H:i:s" ) }}
 						</td>
 						<td>
-							{{ command.lastRunAt|date( "d/m/Y H:i:s" ) }}
+							{{ command.lastRunAt is empty ? "" : command.lastRunAt|date( "d/m/Y H:i:s" ) }}
 						</td>
 						<td>
 							{{ command.lastResult }}

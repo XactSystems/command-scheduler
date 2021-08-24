@@ -12,11 +12,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
+use Xact\CommandScheduler\CommandSchedulerFactory;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
-use Xact\CommandScheduler\Scheduler\CommandSchedulerFactory;
 use Xact\CommandScheduler\Repository\ScheduledCommandRepository;
 use Xact\CommandScheduler\Scheduler\ActiveCommand;
-use Xact\CommandScheduler\Scheduler\CommandHistoryFactory;
 
 class SchedulerCommand extends Command
 {
@@ -287,8 +286,6 @@ class SchedulerCommand extends Command
             $process = $ac->getProcess();
             $scheduledCommand = $this->commandRepository->findById($ac->getScheduledCommand()->getId());
 
-            CommandSchedulerFactory::createCommandHistory($scheduledCommand);
-
             if (null !== $scheduledCommand) {
                 if ($this->verbosity != OutputInterface::VERBOSITY_QUIET) {
                     $description = $scheduledCommand->getDescription() ?? $scheduledCommand->getCommand();
@@ -304,7 +301,7 @@ class SchedulerCommand extends Command
                 $scheduledCommand->setLastResult($resultTest);
                 $scheduledCommand->setLastError($process->getErrorOutput());
 
-                CommandHistoryFactory::createCommandHistory(($scheduledCommand));
+                CommandSchedulerFactory::createCommandHistory(($scheduledCommand));
 
                 // Disable any once-only commands
                 if (empty($scheduledCommand->getCronExpression())) {
