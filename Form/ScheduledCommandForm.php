@@ -43,7 +43,8 @@ class ScheduledCommandForm extends AbstractType
         ;
 
         $builder->addEventListener(
-            FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            FormEvents::PRE_SUBMIT,
+            function (FormEvent $event): void {
                 $formData = $event->getData();
                 $form = $event->getForm();
                 if (array_key_exists('arguments', $formData)) {

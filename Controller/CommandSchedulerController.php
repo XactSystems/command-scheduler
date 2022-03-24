@@ -88,7 +88,7 @@ class CommandSchedulerController extends Controller
 
         $disabledText = $command->getDisabled() ? 'disabled' : 'enabled';
         $this->addFlash('success', "The schedule for command '{$command->getCommand()}' has been {$disabledText}.");
-        
+
         return $this->redirectToRoute('xact_command_scheduler_list');
     }
 
