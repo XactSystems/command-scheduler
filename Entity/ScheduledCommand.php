@@ -112,23 +112,16 @@ class ScheduledCommand
     private $commandHistory;
 
 
-    /**
-     * Constructor
-     */
     public function __construct()
     {
         $this->commandHistory = new ArrayCollection();
     }
 
-    /**
-     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     */
     public function setId(int $id): ScheduledCommand
     {
         $this->id = $id;
@@ -136,15 +129,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     */
     public function setDescription(string $description): ScheduledCommand
     {
         $this->description = $description;
@@ -152,15 +141,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getCommand(): ?string
     {
         return $this->command;
     }
 
-    /**
-     */
     public function setCommand(string $command): ScheduledCommand
     {
         $this->command = $command;
@@ -186,15 +171,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getCronExpression(): ?string
     {
         return $this->cronExpression;
     }
 
-    /**
-     */
     public function setCronExpression(?string $cronExpression): ScheduledCommand
     {
         $this->cronExpression = $cronExpression;
@@ -202,15 +183,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getPriority(): int
     {
         return $this->priority;
     }
 
-    /**
-     */
     public function setPriority(int $priority): ScheduledCommand
     {
         $this->priority = $priority;
@@ -218,15 +195,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getDisabled(): bool
     {
         return $this->disabled;
     }
 
-    /**
-     */
     public function setDisabled(bool $disabled): ScheduledCommand
     {
         $this->disabled = $disabled;
@@ -234,15 +207,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getRunImmediately(): bool
     {
         return $this->runImmediately;
     }
 
-    /**
-     */
     public function setRunImmediately(bool $runImmediately): ScheduledCommand
     {
         $this->runImmediately = $runImmediately;
@@ -250,15 +219,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    /**
-     */
     public function setStatus(string $status): ScheduledCommand
     {
         $this->status = $status;
@@ -266,16 +231,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getLastResultCode(): ?int
     {
         return $this->lastResultCode;
     }
 
-    /**
-     * @param string $lastResultCode
-     */
     public function setLastResultCode(int $lastResultCode): ScheduledCommand
     {
         $this->lastResultCode = $lastResultCode;
@@ -283,15 +243,11 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getLastResult(): ?string
     {
         return $this->lastResult;
     }
 
-    /**
-     */
     public function setLastResult(string $lastResult): ScheduledCommand
     {
         $this->lastResult = $lastResult;
@@ -299,31 +255,23 @@ class ScheduledCommand
         return $this;
     }
 
-    /**
-     */
     public function getLastRunAt(): ?\DateTime
     {
         return $this->lastRunAt;
     }
 
-    /**
-     */
     public function setLastRunAt(?\DateTime $lastRunAt): ScheduledCommand
     {
         $this->lastRunAt = $lastRunAt;
 
         return $this;
     }
-    
-    /**
-     */
+
     public function getCommandHistory(): Collection
     {
         return $this->commandHistory;
     }
 
-    /**
-     */
     public function setCommandHistory(Collection $commandHistory): ScheduledCommand
     {
         $this->commandHistory = $commandHistory;

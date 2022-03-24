@@ -2,7 +2,6 @@
 
 namespace Xact\CommandScheduler\Repository;
 
-use Cron\CronExpression;
 use DateTime;
 use Doctrine\ORM\EntityRepository;
 use Xact\CommandScheduler\Entity\ScheduledCommand;

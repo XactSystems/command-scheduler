@@ -6,24 +6,15 @@ use Cron\CronExpression;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\Client\ProducerInterface;
 use InvalidArgumentException;
-<<<<<<< HEAD
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\CommandNotFoundException;
-=======
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
->>>>>>> 3.4
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
+use Xact\CommandScheduler\CommandSchedulerFactory;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
-<<<<<<< HEAD
-use Xact\CommandScheduler\Scheduler\CommandSchedulerFactory;
-=======
 use Xact\CommandScheduler\Scheduler\ActiveCommand;
-use Xact\CommandScheduler\Scheduler\CommandHistoryFactory;
->>>>>>> 3.4
 
 class SchedulerCommand extends Command
 {
@@ -58,14 +49,11 @@ class SchedulerCommand extends Command
     private $deleteOldJobsAfter = 0;
 
     /**
-<<<<<<< HEAD
-=======
      * @var int
      */
     private $verbosity;
 
     /**
->>>>>>> 3.4
      * @var \Symfony\Component\Console\Input\InputInterface;
      */
     private $input;
@@ -128,11 +116,7 @@ class SchedulerCommand extends Command
         if ($this->idleTime <= 0) {
             throw new InvalidArgumentException('Seconds to sleep when idle must be greater than zero.');
         }
-<<<<<<< HEAD
-        $this->deleteOldJobsAfter = (integer) $input->getOption('delete-old-jobs-after');
-=======
         $this->deleteOldJobsAfter = (int) $input->getOption('delete-old-jobs-after');
->>>>>>> 3.4
         if ($this->deleteOldJobsAfter < 0) {
             throw new InvalidArgumentException('Delete old jobs must be greater than or equal to zero.');
         }
@@ -166,11 +150,6 @@ class SchedulerCommand extends Command
 
             $this->processCommands();
 
-<<<<<<< HEAD
-            $this->cleanUpOnceOnlyCommands();
-
-            sleep($this->idleTime);
-=======
             $this->checkActiveCommands();
 
             $this->cleanUpOnceOnlyCommands();
@@ -181,7 +160,6 @@ class SchedulerCommand extends Command
         while (! empty($this->activeCommands)) {
             sleep(5);
             $this->checkActiveCommands();
->>>>>>> 3.4
         }
 
         if ($this->verbosity !== OutputInterface::VERBOSITY_QUIET) {
@@ -285,18 +263,13 @@ class SchedulerCommand extends Command
             $process = $ac->getProcess();
             $scheduledCommand = $this->em->find(ScheduledCommand::class, $ac->getScheduledCommand()->getId());
 
-<<<<<<< HEAD
             CommandSchedulerFactory::createCommandHistory($scheduledCommand);
 
-            // Disable any once-only commands
-            if (empty($scheduledCommand->getCronExpression())) {
-                $scheduledCommand->setDisabled(true);
-=======
             if (null !== $scheduledCommand) {
                 if ($this->verbosity != OutputInterface::VERBOSITY_QUIET) {
                     $this->output->writeln($scheduledCommand->getDescription() . ' completed with exit code ' . $ac->getProcess()->getExitCode() . '.');
                 }
-                
+
                 $resultTest = $process->getOutput();
                 if (empty($process->getExitCode()) && empty($resultTest)) {
                     $resultTest = 'The command completed successfully.';
@@ -305,7 +278,7 @@ class SchedulerCommand extends Command
                 $scheduledCommand->setLastResultCode($process->getExitCode());
                 $scheduledCommand->setLastResult($resultTest);
 
-                CommandHistoryFactory::createCommandHistory(($scheduledCommand));
+                CommandSchedulerFactory::createCommandHistory(($scheduledCommand));
 
                 // Disable any once-only commands
                 if (empty($scheduledCommand->getCronExpression())) {
@@ -316,7 +289,6 @@ class SchedulerCommand extends Command
                 }
 
                 $this->em->flush();
->>>>>>> 3.4
             }
 
             unset($this->activeCommands[$index]);

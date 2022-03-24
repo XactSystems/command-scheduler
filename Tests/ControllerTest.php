@@ -4,8 +4,6 @@ namespace Xact\CommandScheduler\Tests;
 
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Xact\CommandScheduler\Entity\ScheduledCommand;
-use Xact\CommandScheduler\Scheduler\CommandScheduler;
 
 class ControllerTest extends WebTestCase
 {
@@ -20,7 +18,6 @@ class ControllerTest extends WebTestCase
     private $scheduler;
 
     /**
-     *
      * @var \Symfony\Bundle\FrameworkBundle\Client
      */
     private $client;
@@ -54,7 +51,7 @@ class ControllerTest extends WebTestCase
      * [critical] Uncaught PHP Exception LogicException: ""Xact\CommandScheduler\Controller\CommandSchedulerController"
      *   has no container set, did you forget to define it as a service subscriber?" at
      *   /var/projects/command-scheduler/vendor/symfony/framework-bundle/Controller/ControllerResolver.php line 39
-     * 
+     *
      * This is happening on ALL the controller tests
      */
 

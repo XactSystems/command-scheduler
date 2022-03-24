@@ -27,7 +27,7 @@ class CommandLister
     {
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
-        
+
         $commands = $application->all();
         $choices = [];
         foreach ($commands as $command) {
