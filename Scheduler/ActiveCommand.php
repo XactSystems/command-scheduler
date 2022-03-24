@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Scheduler;
 
 use DateTime;
@@ -8,20 +10,10 @@ use Xact\CommandScheduler\Entity\ScheduledCommand;
 
 class ActiveCommand
 {
-    /**
-     * @var Process
-     */
-    protected $process;
+    protected Process $process;
+    protected ScheduledCommand $scheduledCommand;
+    protected \DateTime $startTime;
 
-    /**
-     * @var ScheduledCommand
-     */
-    protected $scheduledCommand;
-
-    /**
-     * @var DateTime
-     */
-    protected $startTime;
 
     public function __construct(Process $process, ScheduledCommand $scheduledCommand)
     {

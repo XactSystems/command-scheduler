@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Form;
 
 use Symfony\Component\Form\AbstractType;
@@ -24,7 +26,6 @@ class ScheduledCommandForm extends AbstractType
 {
     /**
      * @param mixed[] $options
-     *
      * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -55,8 +56,6 @@ class ScheduledCommandForm extends AbstractType
         );
     }
 
-    /**
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
@@ -67,9 +66,6 @@ class ScheduledCommandForm extends AbstractType
         );
     }
 
-    /**
-     * Form prefix.
-     */
     public function getBlockPrefix(): string
     {
         return 'scheduler_edit';

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Tests;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
@@ -9,40 +12,7 @@ use Xact\CommandScheduler\Scheduler\CommandScheduler;
 
 class CommandSchedulerTest extends KernelTestCase
 {
-    /**
-     * @var \Doctrine\ORM\EntityManagerInterface
-     */
-    private $entityManager;
-
-    protected static function getKernelClass(): string
-    {
-        return TestKernel::class;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function setUp(): void
-    {
-        self::bootKernel();
-
-        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
-
-        $schemaTool = new SchemaTool($this->entityManager);
-        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
-        $schemaTool->createSchema($metadata);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function tearDown(): void
-    {
-        $this->entityManager->close();
-        $this->entityManager = null;
-
-        parent::tearDown();
-    }
+    private EntityManagerInterface $entityManager;
 
     /**
      * @group scheduler
@@ -100,5 +70,35 @@ class CommandSchedulerTest extends KernelTestCase
 
         $updatedCount = count($commandScheduler->getActive());
         $this->assertEquals($updatedCount, $initialCount + 1);
+    }
+
+    protected static function getKernelClass(): string
+    {
+        return TestKernel::class;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function setUp(): void
+    {
+        self::bootKernel();
+
+        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
+
+        $schemaTool = new SchemaTool($this->entityManager);
+        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
+        $schemaTool->createSchema($metadata);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function tearDown(): void
+    {
+        $this->entityManager->close();
+        $this->entityManager = null;
+
+        parent::tearDown();
     }
 }

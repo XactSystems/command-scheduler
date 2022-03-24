@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Repository;
 
 use DateTime;
@@ -13,12 +15,11 @@ use Xact\CommandScheduler\Entity\ScheduledCommandHistory;
  */
 class ScheduledCommandRepository extends ServiceEntityRepository
 {
-    protected $commandEntity = ScheduledCommand::class;
-    protected $historyEntity = ScheduledCommandHistory::class;
+    protected string $historyEntity = ScheduledCommandHistory::class;
 
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, $this->commandEntity);
+        parent::__construct($registry, ScheduledCommand::class);
     }
 
     /**
@@ -33,7 +34,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     // phpcs:ignore
     public function findById(int $id, $lockMode = null, $lockVersion = null): ?ScheduledCommand
     {
-        return $this->getEntityManager()->find($this->commandEntity, $id, $lockMode, $lockVersion);
+        return $this->getEntityManager()->find($this->getEntityName(), $id, $lockMode, $lockVersion);
     }
 
     /**
@@ -45,7 +46,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     {
         return $this->getEntityManager()->createQuery(
             "SELECT c
-            FROM {$this->commandEntity} c
+            FROM {$this->getEntityName()} c
             WHERE c.disabled = false
             AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP())
             AND c.status = 'PENDING'
@@ -70,7 +71,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
              */
             $purgeCommands = $this->getEntityManager()->createQuery(
                 "SELECT c.id
-                FROM {$this->commandEntity} c
+                FROM {$this->getEntityName()} c
                 WHERE c.disabled = true AND COALESCE(c.cronExpression, '') = '' AND c.lastRunAt < :purgeDate"
             )->setParameter('purgeDate', $purgeDate)
             ->getResult();
@@ -85,7 +86,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
 
                 // And then the command
                 $this->getEntityManager()->createQuery(
-                    "DELETE {$this->commandEntity} c
+                    "DELETE {$this->getEntityName()} c
                     WHERE c.id=:cmd"
                 )->setParameter('cmd', $cmd['id'])
                 ->execute();

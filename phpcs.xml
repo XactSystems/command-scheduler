@@ -7,8 +7,8 @@
 
 	<exclude-pattern>vendor/*</exclude-pattern>
 
-    <!-- Check for cross-version support for PHP 7.3 and higher using PHPCompatibility. -->
-    <config name="testVersion" value="7.3-"/>
+    <!-- Check for cross-version support for PHP 7.4 and higher using PHPCompatibility. -->
+    <config name="testVersion" value="7.4-"/>
     <rule ref="PHPCompatibility"/>
     
     <rule ref="PSR12">
@@ -22,44 +22,50 @@
         </properties>
     </rule>
 
-    <rule ref="SlevomatCodingStandard.Commenting.DocCommentSpacing">
-        <properties>
-            <property name="linesCountBeforeFirstContent" value="0"/>
-            <property name="linesCountBetweenAnnotationsGroups" value="1"/>
-            <property name="linesCountBetweenDescriptionAndAnnotations" value="1"/>
-            <property name="linesCountAfterLastContent" value="0"/>
-            <property name="annotationsGroups" type="array">
-                <element value="
-                    @var,
-                    @param,
-                    @return,
-                "/>
-                <element value="
-                    @ORM\,
-                    @UniqueEntity,
-                    @Assert\,
-                "/>
-                <element value="
-                    @Serializer\,
-                "/>
-                <element value="
-                    @Route,
-                    @ParamConverter,
-                "/>
-            </property>
-        </properties>
-    </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint"></rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint"></rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.UselessConstantTypeHint"></rule>
-    <rule ref="SlevomatCodingStandard.Functions.UnusedParameter"></rule>
-    <rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue"></rule>
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
         <properties>
             <property name="searchAnnotations " value="true"/>
         </properties>
     </rule>
+    <rule ref="SlevomatCodingStandard.Classes.ClassStructure">
+        <properties>
+            <property name="groups" type="array">
+                <element value="uses" />
+                <element value="public constants" />
+                <element value="protected constants" />
+                <element value="private constants" />
+                <element value="public static properties, public properties" />
+                <element value="protected properties, protected static properties, private properties, private static properties" />
+                <element value="static constructors, constructor, destructor " />
+                <element value="magic methods" />
+                <element value="protected static abstract methods, protected abstract methods" />
+                <element value="public static abstract methods, public abstract methods, public methods, public static methods" />
+                <element value="protected methods, protected static methods, private methods, private static methods" />
+            </property>
+        </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+        <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectStrictTypesFormat" />
+    </rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint"></rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint"></rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint"></rule>
+    <rule ref="SlevomatCodingStandard.TypeHints.UselessConstantTypeHint"></rule>
+    <rule ref="SlevomatCodingStandard.Functions.UnusedParameter"></rule>
+    <rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue">
+        <properties>
+            <property name="searchAnnotations " value="true"/>
+        </properties>
+    </rule>
     <rule ref="SlevomatCodingStandard.Variables.UselessVariable"></rule>
+    <rule ref="SlevomatCodingStandard.Commenting.DocCommentSpacing">
+        <properties>
+            <property name="linesCountBeforeFirstContent " value="0"/>
+            <property name="linesCountAfterLastContent " value="0"/>
+            <property name="linesCountBetweenDescriptionAndAnnotations " value="1"/>
+            <property name="linesCountBetweenDifferentAnnotationsTypes" value="0"/>
+        </properties>
+    </rule>
 
     <rule ref="Generic.PHP.ForbiddenFunctions">
         <properties>

@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Command;
 
 use Cron\CronExpression;
 use Doctrine\ORM\EntityManagerInterface;
-use Enqueue\Client\ProducerInterface;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -19,72 +20,21 @@ use Xact\CommandScheduler\Scheduler\ActiveCommand;
 
 class SchedulerCommand extends Command
 {
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'xact:command-scheduler';
+    protected static string $defaultName = 'xact:command-scheduler';
 
-    /**
-     * @var \Doctrine\ORM\EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
+    private int $startTime = 0;
+    private int $maxRuntime = 0;
+    private int $idleTime = 5;
+    private int $deleteOldJobsAfter = 0;
+    private int $verbosity = OutputInterface::VERBOSITY_QUIET;
+    private InputInterface $input;
+    private OutputInterface $output;
+    private ScheduledCommandRepository $commandRepository;
+    private LoggerInterface $logger;
+    /** @var ActiveCommand[] */
+    private array $activeCommands = [];
 
-    /**
-     * @var int
-     */
-    private $startTime;
-
-    /**
-     * @var int
-     */
-    private $maxRuntime;
-
-    /**
-     * @var int
-     */
-    private $idleTime;
-
-    /**
-     * @var int
-     */
-    private $deleteOldJobsAfter = 0;
-
-    /**
-     * @var int
-     */
-    private $verbosity;
-
-    /**
-     * @var \Symfony\Component\Console\Input\InputInterface;
-     */
-    private $input;
-
-    /**
-     * @var \Symfony\Component\Console\Output\OutputInterface
-     */
-    private $output;
-
-    /**
-     * @var \Xact\CommandScheduler\Repository\ScheduledCommandRepository
-     */
-    private $commandRepository;
-
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $logger;
-
-    /**
-     * @var ActiveCommand[]
-     */
-    private $activeCommands = [];
-
-    /**
-     * EventSchedulerCommand constructor.
-     *
-     * @param ProducerInterface $enqueueProducer
-     * @param EntityManagerInterface $entityManager
-     */
     public function __construct(EntityManagerInterface $em, ScheduledCommandRepository $commandRepository, LoggerInterface $logger)
     {
         parent::__construct(self::$defaultName);
