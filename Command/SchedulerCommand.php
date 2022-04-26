@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xact\CommandScheduler\Command;
 
 use Cron\CronExpression;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -20,7 +21,7 @@ use Xact\CommandScheduler\Scheduler\ActiveCommand;
 
 class SchedulerCommand extends Command
 {
-    protected static string $defaultName = 'xact:command-scheduler';
+    protected static string $commandName = 'xact:command-scheduler';
 
     private EntityManagerInterface $em;
     private int $startTime = 0;
@@ -37,7 +38,7 @@ class SchedulerCommand extends Command
 
     public function __construct(EntityManagerInterface $em, ScheduledCommandRepository $commandRepository, LoggerInterface $logger)
     {
-        parent::__construct(self::$defaultName);
+        parent::__construct(self::$commandName);
 
         $this->em = $em;
         $this->commandRepository = $commandRepository;
@@ -97,7 +98,7 @@ class SchedulerCommand extends Command
     protected function runCommands(): void
     {
         if ($this->verbosity !== OutputInterface::VERBOSITY_QUIET) {
-            $this->output->writeln('Running scheduled commands.');
+            $this->writeLine('Running scheduled commands.');
         }
 
         while (true) {
@@ -120,7 +121,7 @@ class SchedulerCommand extends Command
         }
 
         if ($this->verbosity !== OutputInterface::VERBOSITY_QUIET) {
-            $this->output->writeln('The command scheduler has terminated.');
+            $this->writeLine('The command scheduler has terminated.');
         }
     }
 
@@ -154,7 +155,7 @@ class SchedulerCommand extends Command
                     break;
                 }
             } catch (\Exception $e) {
-                $this->output->writeln(
+                $this->writeLine(
                     '<error>An exception has occurred scheduling the command ' .
                     $command->getCommand() . ': ' . $e->getMessage() . '</error>'
                 );
@@ -195,10 +196,10 @@ class SchedulerCommand extends Command
                 $executeMessage = '<info>Execute</info> : <comment>' . $description
                     . ($this->verbosity > OutputInterface::VERBOSITY_NORMAL ? implode(',', $scheduledCommand->getArguments()) : '')
                     . '</comment>';
-                $this->output->writeln($executeMessage);
+                $this->writeLine($executeMessage);
             }
         } catch (\Exception $e) {
-            $this->output->writeln("<error>{$e->getMessage()}</error>");
+            $this->writeLine("<error>{$e->getMessage()}</error>");
             $this->logger->critical($e->getMessage());
             $this->logger->critical($e->getTraceAsString());
         } finally {
@@ -222,11 +223,11 @@ class SchedulerCommand extends Command
                     $error = $ac->getProcess()->getIncrementalErrorOutput();
 
                     if (!empty($output)) {
-                        $this->output->writeln("{$description}:" . str_replace("\n", "\n{$description}:", $output));
+                        $this->writeLine("{$description}:" . str_replace("\n", "\n{$description}:", $output));
                     }
 
                     if (!empty($error)) {
-                        $this->output->writeln("<error>{$description}:" . str_replace("\n", "\n{$description}:", $error) . '</error>');
+                        $this->writeLine("<error>{$description}:" . str_replace("\n", "\n{$description}:", $error) . '</error>');
                     }
                 }
 
@@ -239,7 +240,7 @@ class SchedulerCommand extends Command
             if (null !== $scheduledCommand) {
                 if ($this->verbosity != OutputInterface::VERBOSITY_QUIET) {
                     $description = $scheduledCommand->getDescription() ?? $scheduledCommand->getCommand();
-                    $this->output->writeln($description . ' completed with exit code ' . $ac->getProcess()->getExitCode() . '.');
+                    $this->writeLine($description . ' completed with exit code ' . $ac->getProcess()->getExitCode() . '.');
                 }
 
                 $resultTest = $process->getOutput();
@@ -262,6 +263,18 @@ class SchedulerCommand extends Command
                 }
                 if ($scheduledCommand->getClearData()) {
                     $scheduledCommand->setData(null);
+                }
+
+                // Initialise on-success and on-failure commands
+                if (empty($process->getExitCode()) && $scheduledCommand->getOnSuccessCommand() !== null) {
+                    $successCommand = $scheduledCommand->getOnSuccessCommand();
+                    $successCommand->setRunImmediately(true);
+                    $successCommand->setOriginalCommand($scheduledCommand);
+                }
+                if (!empty($process->getExitCode()) && $scheduledCommand->getOnFailureCommand() !== null) {
+                    $failureCommand = $scheduledCommand->getOnFailureCommand();
+                    $failureCommand->setRunImmediately(true);
+                    $failureCommand->setOriginalCommand($scheduledCommand);
                 }
 
                 $this->em->flush();
@@ -311,5 +324,11 @@ class SchedulerCommand extends Command
         if ($this->deleteOldJobsAfter > 0) {
             $this->commandRepository->cleanUpOnceOnlyCommands($this->deleteOldJobsAfter);
         }
+    }
+
+    protected function writeLine(string $message): void
+    {
+        $now = (new DateTime())->format('Y-m-d H:i:s');
+        $this->output->writeln("{$now} {$message}");
     }
 }

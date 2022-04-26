@@ -106,6 +106,24 @@ class ScheduledCommand
     private ?string $lastError = null;
 
     /**
+     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
+     * @ORM\JoinColumn(name="OnSuccessCommandID", referencedColumnName="ID", nullable=true)
+     */
+    private ?self $onSuccessCommand = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
+     * @ORM\JoinColumn(name="OnFailureCommandID", referencedColumnName="ID", nullable=true)
+     */
+    private ?self $onFailureCommand = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
+     * @ORM\JoinColumn(name="OriginalCommandID", referencedColumnName="ID", nullable=true)
+     */
+    private ?self $originalCommand = null;
+
+    /**
      * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade="all", orphanRemoval=true)
      */
     private Collection $commandHistory;
@@ -339,6 +357,42 @@ class ScheduledCommand
     public function setCommandHistory(Collection $commandHistory): self
     {
         $this->commandHistory = $commandHistory;
+
+        return $this;
+    }
+
+    public function getOnSuccessCommand(): ?self
+    {
+        return $this->onSuccessCommand;
+    }
+
+    public function setOnSuccessCommand(?self $onSuccessCommand): self
+    {
+        $this->onSuccessCommand = $onSuccessCommand;
+
+        return $this;
+    }
+
+    public function getOnFailureCommand(): ?self
+    {
+        return $this->onFailureCommand;
+    }
+
+    public function setOnFailureCommandId(?self $onFailureCommand): self
+    {
+        $this->onFailureCommand = $onFailureCommand;
+
+        return $this;
+    }
+
+    public function getOriginalCommand(): ?self
+    {
+        return $this->originalCommand;
+    }
+
+    public function setOriginalCommand(?self $originalCommand): self
+    {
+        $this->originalCommand = $originalCommand;
 
         return $this;
     }
