@@ -1,45 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Tests;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ControllerTest extends WebTestCase
 {
-    /**
-     * @var \Doctrine\ORM\EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\Client
-     */
-    private $client;
-
-    protected static function getKernelClass(): string
-    {
-        return TestKernel::class;
-    }
-
-    protected function setUp(): void
-    {
-        $this->client = static::createClient();
-
-        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager('test');
-
-        $schemaTool = new SchemaTool($this->entityManager);
-        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
-        $schemaTool->createSchema($metadata);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->entityManager->close();
-        $this->entityManager = null;
-
-        parent::tearDown();
-    }
+    private EntityManagerInterface $entityManager;
+    private Client $client;
 
     /**
      * N.B. The functional controller tests currently do nothing until we can resolve the following errors:
@@ -152,5 +125,29 @@ class ControllerTest extends WebTestCase
         $updatedCommand = $commandScheduler->get($scheduledCommand->getId());
         $this->assertEquals(true, $updatedCommand->getRunImmediately());
         */
+    }
+
+    protected static function getKernelClass(): string
+    {
+        return TestKernel::class;
+    }
+
+    protected function setUp(): void
+    {
+        $this->client = static::createClient();
+
+        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
+
+        $schemaTool = new SchemaTool($this->entityManager);
+        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
+        $schemaTool->createSchema($metadata);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->entityManager->close();
+        $this->entityManager = null;
+
+        parent::tearDown();
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Form;
 
 use Symfony\Component\Form\AbstractType;
@@ -9,21 +11,14 @@ use Xact\CommandScheduler\Service\CommandLister;
 
 class CommandChoiceType extends AbstractType
 {
-    /**
-     * @var \Xact\CommandScheduler\Service\CommandLister
-     */
-    private $commandLister;
+    private CommandLister $commandLister;
 
-    /**
-     * Class constructor.
-     */
+
     public function __construct(CommandLister $commandLister)
     {
         $this->commandLister = $commandLister;
     }
 
-    /**
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
@@ -36,7 +31,7 @@ class CommandChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return ChoiceType::class;
     }

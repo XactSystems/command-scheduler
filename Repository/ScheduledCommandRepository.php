@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Repository;
 
 use DateTime;
@@ -13,12 +15,11 @@ use Xact\CommandScheduler\Entity\ScheduledCommandHistory;
  */
 class ScheduledCommandRepository extends ServiceEntityRepository
 {
-    protected $commandEntity = ScheduledCommand::class;
-    protected $historyEntity = ScheduledCommandHistory::class;
+    protected string $historyEntity = ScheduledCommandHistory::class;
 
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, $this->commandEntity);
+        parent::__construct($registry, ScheduledCommand::class);
     }
 
     /**
@@ -33,7 +34,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     // phpcs:ignore
     public function findById(int $id, $lockMode = null, $lockVersion = null): ?ScheduledCommand
     {
-        return $this->getEntityManager()->find($this->commandEntity, $id, $lockMode, $lockVersion);
+        return $this->getEntityManager()->find($this->getEntityName(), $id, $lockMode, $lockVersion);
     }
 
     /**
@@ -45,7 +46,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     {
         return $this->getEntityManager()->createQuery(
             "SELECT c
-            FROM {$this->commandEntity} c
+            FROM {$this->getEntityName()} c
             WHERE c.disabled = false
             AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP())
             AND c.status = 'PENDING'
@@ -59,8 +60,8 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     public function cleanUpOnceOnlyCommands(int $afterDays = 60): void
     {
         $purgeDate = new DateTime("-{$afterDays} day");
-
         $em = $this->getEntityManager();
+
         $em->beginTransaction();
         try {
             /**

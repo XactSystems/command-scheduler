@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -13,49 +15,38 @@ use Doctrine\ORM\Mapping as ORM;
 class ScheduledCommandHistory
 {
     /**
-     * @var int
-     *
      * @ORM\Column(name="ID", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    private ?int $id = null;
 
     /**
-     * @var \Xact\CommandScheduler\Entity\ScheduledCommand
-     *
      * @ORM\ManyToOne(targetEntity="ScheduledCommand", inversedBy="commandHistory")
      * @ORM\JoinColumn(name="ScheduledCommandID", referencedColumnName="ID")
      */
-    private $scheduledCommand;
+    private ScheduledCommand $scheduledCommand;
 
     /**
-     * @var \DateTime|null
-     *
      * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
      */
-    private $lastRunAt;
+    private ?\DateTime $lastRunAt = null;
 
     /**
-     * @var integer
-     *
      * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
      */
-    private $lastResultCode;
+    private ?int $lastResultCode = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="LastResult", type="text", nullable=true)
      */
-    private $lastResult;
+    private ?string $lastResult = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="LastError", type="text", nullable=true)
      */
-    private $lastError;
+    private ?string $lastError = null;
+
 
     public function getId(): ?int
     {
