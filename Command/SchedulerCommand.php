@@ -238,46 +238,55 @@ class SchedulerCommand extends Command
             $scheduledCommand = $this->commandRepository->findById($ac->getScheduledCommand()->getId());
 
             if (null !== $scheduledCommand) {
-                if ($this->verbosity != OutputInterface::VERBOSITY_QUIET) {
-                    $description = $scheduledCommand->getDescription() ?? $scheduledCommand->getCommand();
-                    $this->writeLine($description . ' completed with exit code ' . $ac->getProcess()->getExitCode() . '.');
-                }
+                try {
+                    $this->em->getConnection()->beginTransaction();
 
-                $resultTest = $process->getOutput();
-                if (empty($process->getExitCode()) && empty($resultTest)) {
-                    $resultTest = 'The command completed successfully.';
-                }
-                $scheduledCommand->setRunImmediately(false);
-                $scheduledCommand->setLastResultCode($process->getExitCode());
-                $scheduledCommand->setLastResult($resultTest);
-                $scheduledCommand->setLastError($process->getErrorOutput());
+                    if ($this->verbosity != OutputInterface::VERBOSITY_QUIET) {
+                        $description = $scheduledCommand->getDescription() ?? $scheduledCommand->getCommand();
+                        $this->writeLine($description . ' completed with exit code ' . $ac->getProcess()->getExitCode() . '.');
+                    }
 
-                CommandSchedulerFactory::createCommandHistory($scheduledCommand);
+                    $resultTest = $process->getOutput();
+                    if (empty($process->getExitCode()) && empty($resultTest)) {
+                        $resultTest = 'The command completed successfully.';
+                    }
+                    $scheduledCommand->setRunImmediately(false);
+                    $scheduledCommand->setLastResultCode($process->getExitCode());
+                    $scheduledCommand->setLastResult($resultTest);
+                    $scheduledCommand->setLastError($process->getErrorOutput());
 
-                // Disable any once-only commands
-                if (empty($scheduledCommand->getCronExpression())) {
-                    $scheduledCommand->setDisabled(true);
-                    $scheduledCommand->setStatus(ScheduledCommand::STATUS_COMPLETED);
-                } else {
-                    $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
-                }
-                if ($scheduledCommand->getClearData()) {
-                    $scheduledCommand->setData(null);
-                }
+                    CommandSchedulerFactory::createCommandHistory($scheduledCommand);
 
-                // Initialise on-success and on-failure commands
-                if (empty($process->getExitCode()) && $scheduledCommand->getOnSuccessCommand() !== null) {
-                    $successCommand = $scheduledCommand->getOnSuccessCommand();
-                    $successCommand->setRunImmediately(true);
-                    $successCommand->setOriginalCommand($scheduledCommand);
-                }
-                if (!empty($process->getExitCode()) && $scheduledCommand->getOnFailureCommand() !== null) {
-                    $failureCommand = $scheduledCommand->getOnFailureCommand();
-                    $failureCommand->setRunImmediately(true);
-                    $failureCommand->setOriginalCommand($scheduledCommand);
-                }
+                    // Disable any once-only commands
+                    if (empty($scheduledCommand->getCronExpression())) {
+                        $scheduledCommand->setDisabled(true);
+                        $scheduledCommand->setStatus(ScheduledCommand::STATUS_COMPLETED);
+                    } else {
+                        $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
+                    }
+                    if ($scheduledCommand->getClearData()) {
+                        $scheduledCommand->setData(null);
+                    }
 
-                $this->em->flush();
+                    // Initialise on-success and on-failure commands
+                    if (empty($process->getExitCode()) && $scheduledCommand->getOnSuccessCommand() !== null) {
+                        $successCommand = $scheduledCommand->getOnSuccessCommand();
+                        $successCommand->setRunImmediately(true);
+                        $successCommand->setOriginalCommand($scheduledCommand);
+                    }
+                    if (!empty($process->getExitCode()) && $scheduledCommand->getOnFailureCommand() !== null) {
+                        $failureCommand = $scheduledCommand->getOnFailureCommand();
+                        $failureCommand->setRunImmediately(true);
+                        $failureCommand->setOriginalCommand($scheduledCommand);
+                    }
+
+                    $this->em->flush();
+                    $this->em->getConnection()->commit();
+                } catch (\Exception $e) {
+                    $this->writeLine("<error>{$e->getMessage()}</error>");
+                    $this->logger->critical($e->getMessage());
+                    $this->logger->critical($e->getTraceAsString());
+                }
             }
 
             unset($this->activeCommands[$index]);
