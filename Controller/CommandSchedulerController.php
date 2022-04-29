@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -24,8 +26,6 @@ class CommandSchedulerController extends Controller
     }
 
     /**
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     *
      * @Route("/command-scheduler/history/{id}", name="xact_command_scheduler_history")
      * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
      */
@@ -88,7 +88,7 @@ class CommandSchedulerController extends Controller
 
         $disabledText = $command->getDisabled() ? 'disabled' : 'enabled';
         $this->addFlash('success', "The schedule for command '{$command->getCommand()}' has been {$disabledText}.");
-        
+
         return $this->redirectToRoute('xact_command_scheduler_list');
     }
 

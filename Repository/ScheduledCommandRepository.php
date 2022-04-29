@@ -1,17 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Repository;
 
 use DateTime;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Query;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
+use Xact\CommandScheduler\Entity\ScheduledCommandHistory;
 
 /**
  * ScheduledCommand repository class
  */
-class ScheduledCommandRepository extends EntityRepository
+class ScheduledCommandRepository extends ServiceEntityRepository
 {
+    protected string $historyEntity = ScheduledCommandHistory::class;
+
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, ScheduledCommand::class);
+    }
+
+    /**
+     * Finds an entity by its primary key / identifier.
+     *
+     * @param int      $id          The identifier.
+     * @param int|null $lockMode    One of the \Doctrine\DBAL\LockMode::* constants
+     *                              or NULL if no specific lock mode should be used
+     *                              during the search.
+     * @param int|null $lockVersion The lock version.
+     */
+    // phpcs:ignore
+    public function findById(int $id, $lockMode = null, $lockVersion = null): ?ScheduledCommand
+    {
+        return $this->getEntityManager()->find($this->getEntityName(), $id, $lockMode, $lockVersion);
+    }
+
     /**
      * Return an array of active scheduled commands
      *
@@ -21,8 +46,10 @@ class ScheduledCommandRepository extends EntityRepository
     {
         return $this->getEntityManager()->createQuery(
             "SELECT c
-            FROM Xact\CommandScheduler\Entity\ScheduledCommand c
-            WHERE c.disabled = false AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '') AND c.status = 'PENDING'
+            FROM {$this->getEntityName()} c
+            WHERE c.disabled = false
+            AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP())
+            AND c.status = 'PENDING'
             ORDER BY c.priority DESC"
         )->getResult();
     }
@@ -44,7 +71,7 @@ class ScheduledCommandRepository extends EntityRepository
              */
             $purgeCommands = $this->getEntityManager()->createQuery(
                 "SELECT c.id
-                FROM Xact\CommandScheduler\Entity\ScheduledCommand c
+                FROM {$this->getEntityName()} c
                 WHERE c.disabled = true AND COALESCE(c.cronExpression, '') = '' AND c.lastRunAt < :purgeDate"
             )->setParameter('purgeDate', $purgeDate)
             ->getResult();
@@ -52,14 +79,14 @@ class ScheduledCommandRepository extends EntityRepository
             foreach ($purgeCommands as $cmd) {
                 // Delete the command history records
                 $this->getEntityManager()->createQuery(
-                    "DELETE Xact\CommandScheduler\Entity\ScheduledCommandHistory h
+                    "DELETE {$this->historyEntity} h
                     WHERE h.scheduledCommand=:cmd"
                 )->setParameter('cmd', $cmd['id'])
                 ->execute();
 
                 // And then the command
                 $this->getEntityManager()->createQuery(
-                    "DELETE Xact\CommandScheduler\Entity\ScheduledCommand c
+                    "DELETE {$this->getEntityName()} c
                     WHERE c.id=:cmd"
                 )->setParameter('cmd', $cmd['id'])
                 ->execute();

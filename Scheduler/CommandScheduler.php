@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Scheduler;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,14 +12,9 @@ use Xact\CommandScheduler\Entity\ScheduledCommand;
  */
 class CommandScheduler
 {
-    /**
-     * @var \Doctrine\ORM\EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
-    /**
-     * Class constructor.
-     */
+
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;

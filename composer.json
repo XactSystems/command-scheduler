@@ -1,6 +1,7 @@
 {
-    "name": "local/command-scheduler",
+    "name": "xactsystems/command-scheduler",
     "description": "A Symfony command scheduler.",
+    "version": "3.4.14",
     "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
@@ -25,7 +26,7 @@
         "doctrine/doctrine-bundle": "^1.12",
         "doctrine/orm": "^2.6",
         "dragonmantank/cron-expression": "~1.1",
-        "sensio/framework-extra-bundle": "~5.4",
+        "sensio/framework-extra-bundle": "~3.0|~5.0",
         "symfony/asset": "^3.4",
         "symfony/form": "^3.4",
         "symfony/process": "^3.4",
