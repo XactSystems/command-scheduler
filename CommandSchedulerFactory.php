@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler;
 
 use Cron\CronExpression;
@@ -52,9 +54,10 @@ class CommandSchedulerFactory
     {
         $history = new ScheduledCommandHistory();
         $history->setScheduledCommand($scheduledCommand);
-        $history->setResultCode($scheduledCommand->getLastResultCode());
-        $history->setResult($scheduledCommand->getLastResult());
-        $history->setRunAt($scheduledCommand->getLastRunAt());
+        $history->setLastResultCode($scheduledCommand->getLastResultCode());
+        $history->setLastResult($scheduledCommand->getLastResult());
+        $history->setLastError($scheduledCommand->getLastError());
+        $history->setLastRunAt($scheduledCommand->getLastRunAt());
         $scheduledCommand->getCommandHistory()->add($history);
 
         return $history;

@@ -1,19 +1,33 @@
 services:
     # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
+        autowire: false      # Automatically injects dependencies in your services.
+        public: false
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-    Xact\CommandScheduler\:
-        public: true
-        resource: '../../*'
-        exclude: '../../{DependencyInjection,Entity,Repository,Resources,Scheduler,Tests}'
-
     Xact\CommandScheduler\Command\:
+        autowire: true
         public: true
         resource: '../../Command/*'
         tags: [command_handler]
 
-    Xact\CommandScheduler\Scheduler\CommandScheduler:
+    Xact\CommandScheduler\Controller\:
         public: true
         autowire: true
+        resource: '../../Controller/*'
+
+    Xact\CommandScheduler\Form\:
+        public: true
+        autowire: true
+        resource: '../../Form/*'
+
+    Xact\CommandScheduler\Scheduler\:
+        public: true
+        autowire: true
+        resource: '../../Scheduler/*'
+        exclude: '../../Scheduler/ActiveCommand.php'
+
+    Xact\CommandScheduler\Service\:
+        public: true
+        autowire: true
+        resource: '../../Service/*'

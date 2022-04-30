@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -12,15 +14,22 @@ class TestKernel extends Kernel
 {
     use MicroKernelTrait;
 
+    public function __construct()
+    {
+        parent::__construct('test', true);
+    }
+
     /**
      * @inheritDoc
      */
     public function registerBundles()
     {
         $bundles = [
-            \Symfony\Bundle\FrameworkBundle\FrameworkBundle::class,
-            \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class,
             \Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class,
+            \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class,
+            \Symfony\Bundle\FrameworkBundle\FrameworkBundle::class,
+            \Symfony\Bundle\TwigBundle\TwigBundle::class,
+            \Xact\CommandScheduler\XactCommandSchedulerBundle::class,
         ];
 
         foreach ($bundles as $class) {

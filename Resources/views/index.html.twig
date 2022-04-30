@@ -12,7 +12,8 @@
 					<th>&nbsp;</th>
 					<th>{{ "Description"|trans }}</th>
 					<th>{{ "Command"|trans }}</th>
-					<th>{{ "Cron Expression"|trans }}</th>
+					<th>{{ "Cron Exp."|trans }}</th>
+					<th>{{ "Run At"|trans }}</th>
 					<th>{{ "Last Run At"|trans }}</th>
 					<th>{{ "Last Result"|trans }}</th>
 					<th>{{ "Actions"|trans }}</th>
@@ -36,13 +37,15 @@
 						</td>
 						<td>
 							{{ command.command }}
-							{{ command.arguments }}
 						</td>
 						<td>
 							{{ command.cronExpression }}
 						</td>
 						<td>
-							{{ command.lastRunAt|date( "d/m/Y H:i:s" ) }}
+							{{ command.runAt is empty ? "" : command.runAt|date( "d/m/Y H:i:s" ) }}
+						</td>
+						<td>
+							{{ command.lastRunAt is empty ? "" : command.lastRunAt|date( "d/m/Y H:i:s" ) }}
 						</td>
 						<td>
 							{{ command.lastResult }}

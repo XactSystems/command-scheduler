@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -13,121 +15,107 @@ use Doctrine\ORM\Mapping as ORM;
 class ScheduledCommandHistory
 {
     /**
-     * @var int
-     *
      * @ORM\Column(name="ID", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    private ?int $id = null;
 
     /**
-     * @var \Xact\CommandScheduler\Entity\ScheduledCommand
-     *
      * @ORM\ManyToOne(targetEntity="ScheduledCommand", inversedBy="commandHistory")
      * @ORM\JoinColumn(name="ScheduledCommandID", referencedColumnName="ID")
      */
-    private $scheduledCommand;
+    private ScheduledCommand $scheduledCommand;
 
     /**
-     * @var \DateTime|null
-     *
      * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
      */
-    private $runAt;
+    private ?\DateTime $lastRunAt = null;
 
     /**
-     * @var integer
-     *
      * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
      */
-    private $resultCode;
+    private ?int $lastResultCode = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="LastResult", type="text", nullable=true)
      */
-    private $result;
+    private ?string $lastResult = null;
 
     /**
+     * @ORM\Column(name="LastError", type="text", nullable=true)
      */
+    private ?string $lastError = null;
+
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     */
-    public function setId(int $id): ScheduledCommandHistory
+    public function setId(int $id): self
     {
         $this->id = $id;
 
         return $this;
     }
 
-    /**
-     */
     public function getScheduledCommand(): ScheduledCommand
     {
         return $this->scheduledCommand;
     }
 
-    /**
-     * @param \Xact\CommandScheduler\Entity\ScheduledCommand $command
-     */
-    public function setScheduledCommand(ScheduledCommand $scheduledCommand): ScheduledCommandHistory
+    public function setScheduledCommand(ScheduledCommand $scheduledCommand): self
     {
         $this->scheduledCommand = $scheduledCommand;
 
         return $this;
     }
 
-    /**
-     */
-    public function getResultCode(): ?int
+    public function getLastResultCode(): ?int
     {
-        return $this->resultCode;
+        return $this->lastResultCode;
     }
 
-    /**
-     * @param string $lastResultCode
-     */
-    public function setResultCode(int $resultCode): ScheduledCommandHistory
+    public function setLastResultCode(?int $lastResultCode): self
     {
-        $this->resultCode = $resultCode;
+        $this->lastResultCode = $lastResultCode;
 
         return $this;
     }
 
-    /**
-     */
-    public function getResult(): ?string
+    public function getLastResult(): ?string
     {
-        return $this->result;
+        return $this->lastResult;
     }
 
-    /**
-     */
-    public function setResult(string $result): ScheduledCommandHistory
+    public function setLastResult(?string $lastResult): self
     {
-        $this->result = $result;
+        $this->lastResult = $lastResult;
 
         return $this;
     }
 
-    /**
-     */
-    public function getRunAt(): ?\DateTime
+    public function getLastError(): ?string
     {
-        return $this->runAt;
+        return $this->lastError;
     }
 
-    /**
-     */
-    public function setRunAt(?\DateTime $runAt): ScheduledCommandHistory
+    public function setLastError(?string $lastError): self
     {
-        $this->runAt = $runAt;
+        $this->lastError = $lastError;
+
+        return $this;
+    }
+
+    public function getLastRunAt(): ?\DateTime
+    {
+        return $this->lastRunAt;
+    }
+
+    public function setLastRunAt(?\DateTime $lastRunAt): self
+    {
+        $this->lastRunAt = $lastRunAt;
 
         return $this;
     }

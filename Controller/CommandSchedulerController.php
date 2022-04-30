@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -25,7 +27,7 @@ class CommandSchedulerController extends AbstractController
 
     /**
      * @Route("/command-scheduler/history/{id}", name="xact_command_scheduler_history")
-     * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
+     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
      */
     public function history(ScheduledCommand $command): Response
     {
@@ -38,7 +40,7 @@ class CommandSchedulerController extends AbstractController
      * Edit a scheduled command
      *
      * @Route("/command-scheduler/edit/{id}", name="xact_command_scheduler_edit")
-     * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
+     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
      */
     public function edit(Request $request, ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
@@ -63,7 +65,7 @@ class CommandSchedulerController extends AbstractController
      * Delete a scheduled command
      *
      * @Route("/command-scheduler/delete/{id}", name="xact_command_scheduler_delete")
-     * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
+     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
      */
     public function delete(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
@@ -78,7 +80,7 @@ class CommandSchedulerController extends AbstractController
      * Disabled/enable a scheduled command
      *
      * @Route("/command-scheduler/disable/{id}", name="xact_command_scheduler_disable")
-     * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
+     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
      */
     public function disable(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
@@ -94,7 +96,7 @@ class CommandSchedulerController extends AbstractController
      * Immediately run a scheduled command
      *
      * @Route("/command-scheduler/run/{id}", name="xact_command_scheduler_run")
-     * @ParamConverter("command", class="XactCommandSchedulerBundle:ScheduledCommand")
+     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
      */
     public function run(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
