@@ -90,6 +90,8 @@ class SchedulerCommand extends Command
         $this->startTime = time();
 
         $this->runCommands();
+
+        return 0;
     }
 
     /**
@@ -202,8 +204,6 @@ class SchedulerCommand extends Command
             $this->writeLine("<error>{$e->getMessage()}</error>");
             $this->logger->critical($e->getMessage());
             $this->logger->critical($e->getTraceAsString());
-        } finally {
-            unset($command);
         }
 
         gc_collect_cycles();
