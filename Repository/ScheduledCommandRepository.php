@@ -5,22 +5,17 @@ declare(strict_types=1);
 namespace Xact\CommandScheduler\Repository;
 
 use DateTime;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityRepository;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Entity\ScheduledCommandHistory;
 
 /**
  * ScheduledCommand repository class
  */
-class ScheduledCommandRepository extends ServiceEntityRepository
+class ScheduledCommandRepository extends EntityRepository
 {
+    protected string $commandEntity = ScheduledCommand::class;
     protected string $historyEntity = ScheduledCommandHistory::class;
-
-    public function __construct(ManagerRegistry $registry)
-    {
-        parent::__construct($registry, ScheduledCommand::class);
-    }
 
     /**
      * Finds an entity by its primary key / identifier.
@@ -34,7 +29,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     // phpcs:ignore
     public function findById(int $id, $lockMode = null, $lockVersion = null): ?ScheduledCommand
     {
-        return $this->getEntityManager()->find($this->getEntityName(), $id, $lockMode, $lockVersion);
+        return $this->getEntityManager()->find($this->commandEntity, $id, $lockMode, $lockVersion);
     }
 
     /**
@@ -46,7 +41,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     {
         return $this->getEntityManager()->createQuery(
             "SELECT c
-            FROM {$this->getEntityName()} c
+            FROM {$this->commandEntity} c
             WHERE c.disabled = false
             AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP())
             AND c.status = 'PENDING'

@@ -36,12 +36,12 @@ class SchedulerCommand extends Command
     /** @var ActiveCommand[] */
     private array $activeCommands = [];
 
-    public function __construct(EntityManagerInterface $em, ScheduledCommandRepository $commandRepository, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
     {
         parent::__construct(self::$commandName);
 
         $this->em = $em;
-        $this->commandRepository = $commandRepository;
+        $this->commandRepository = $em->getRepository(ScheduledCommand::class);
         $this->logger = $logger;
     }
 

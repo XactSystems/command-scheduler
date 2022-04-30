@@ -8,6 +8,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Xact\CommandScheduler\Entity\ScheduledCommand;
+use Xact\CommandScheduler\Scheduler\CommandScheduler;
 
 class ControllerTest extends WebTestCase
 {
@@ -15,24 +17,13 @@ class ControllerTest extends WebTestCase
     private Client $client;
 
     /**
-     * N.B. The functional controller tests currently do nothing until we can resolve the following errors:
-     * [critical] Uncaught PHP Exception LogicException: ""Xact\CommandScheduler\Controller\CommandSchedulerController"
-     *   has no container set, did you forget to define it as a service subscriber?" at
-     *   /var/projects/command-scheduler/vendor/symfony/framework-bundle/Controller/ControllerResolver.php line 39
-     *
-     * This is happening on ALL the controller tests
-     */
-
-    /**
      * @group controller
      */
     public function testList(): void
     {
-        /*
         $this->client->request('GET', '/command-scheduler/list');
-
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        */
+        //var_dump($this->client->getResponse()->getContent());
     }
 
     /**
@@ -40,7 +31,6 @@ class ControllerTest extends WebTestCase
      */
     public function testEdit(): void
     {
-        /*
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 1');
         $scheduledCommand->setCommand('test:test-command-1');
@@ -55,7 +45,7 @@ class ControllerTest extends WebTestCase
 
         $description = $crawler->filter('input[name="scheduler_edit[description]"]')->attr('value');
         $cronExpression = $crawler->filter('input[name="scheduler_edit[cronExpression]"]')->attr('value');
-        $this->assertEquals($description,'Test command 1');
+        $this->assertEquals($description, 'Test command 1');
         $this->assertEquals($cronExpression, '@hourly');
 
         $saveButtonNode = $crawler->selectButton('scheduler_edit[save]');
@@ -69,13 +59,14 @@ class ControllerTest extends WebTestCase
             'scheduler_edit[cronExpression]' => '@daily',
         ]);
 
+        /*
+        // This test is failing and returning code 404 as the table is not found, it must be to do with transactions and ParamConvertor
         $this->client->submit($form);
-        // This test is failing and returning code 404 as the DB object is not found, it must be to do with transactions and ParamConvertor
-        //$this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
 
-        //$updatedCommand = $commandScheduler->get($scheduledCommand->getId());
-        //$this->assertEquals($updatedCommand->getDescription(), 'Test command 1 updated');
-        //$this->assertEquals($updatedCommand->getCronExpression(), '@daily');
+        $updatedCommand = $commandScheduler->get($scheduledCommand->getId());
+        $this->assertEquals($updatedCommand->getDescription(), 'Test command 1 updated');
+        $this->assertEquals($updatedCommand->getCronExpression(), '@daily');
         */
     }
 
@@ -84,7 +75,6 @@ class ControllerTest extends WebTestCase
      */
     public function testDisable(): void
     {
-        /*
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 2');
         $scheduledCommand->setCommand('test:test-command-2');
@@ -100,7 +90,6 @@ class ControllerTest extends WebTestCase
 
         $updatedCommand = $commandScheduler->get($scheduledCommand->getId());
         $this->assertEquals(true, $updatedCommand->getDisabled());
-        */
     }
 
     /**
@@ -108,7 +97,6 @@ class ControllerTest extends WebTestCase
      */
     public function testRun(): void
     {
-        /*
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription('Test command 3');
         $scheduledCommand->setCommand('test:test-command-3');
@@ -124,7 +112,6 @@ class ControllerTest extends WebTestCase
 
         $updatedCommand = $commandScheduler->get($scheduledCommand->getId());
         $this->assertEquals(true, $updatedCommand->getRunImmediately());
-        */
     }
 
     protected static function getKernelClass(): string
@@ -146,7 +133,6 @@ class ControllerTest extends WebTestCase
     protected function tearDown(): void
     {
         $this->entityManager->close();
-        $this->entityManager = null;
 
         parent::tearDown();
     }

@@ -45,7 +45,7 @@ class ScheduledCommand
     private ?array $arguments = null;
 
     /**
-     * @ORM\Column(name="Data", type="string")
+     * @ORM\Column(name="Data", type="string", nullable=true)
      */
     private ?string $data = null;
 
@@ -123,7 +123,7 @@ class ScheduledCommand
     private ?self $originalCommand = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade="all", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade={"all"}, orphanRemoval=true)
      */
     private Collection $commandHistory;
 
