@@ -36,12 +36,12 @@ class SchedulerCommand extends Command
     /** @var ActiveCommand[] */
     private array $activeCommands = [];
 
-    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, ScheduledCommandRepository $commandRepository, LoggerInterface $logger)
     {
         parent::__construct(self::$commandName);
 
         $this->em = $em;
-        $this->commandRepository = $em->getRepository(ScheduledCommand::class);
+        $this->commandRepository = $commandRepository;
         $this->logger = $logger;
     }
 
@@ -184,8 +184,10 @@ class SchedulerCommand extends Command
 
             $commandArguments = $this->getFixedCommandArguments($scheduledCommand);
             $commandArguments[] = $scheduledCommand->getCommand();
-            foreach ($scheduledCommand->getArguments() as $param) {
-                $commandArguments[] = $param;
+            if ($scheduledCommand->getArguments() !== null) {
+                foreach ($scheduledCommand->getArguments() as $param) {
+                    $commandArguments[] = $param;
+                }
             }
 
             $process = new Process($commandArguments);
@@ -257,16 +259,40 @@ class SchedulerCommand extends Command
 
                     CommandSchedulerFactory::createCommandHistory($scheduledCommand);
 
-                    // Disable any once-only commands
-                    if (empty($scheduledCommand->getCronExpression())) {
-                        $scheduledCommand->setDisabled(true);
-                        $scheduledCommand->setStatus(ScheduledCommand::STATUS_COMPLETED);
+                    // Reschedule failed commands if retry is enabled
+                    if ($scheduledCommand->getLastResultCode() !== 0 && $scheduledCommand->getRetryOnFail()) {
+                        if ($scheduledCommand->getRetryCount() >= $scheduledCommand->getRetryMaxAttempts()) {
+                            $scheduledCommand->setDisabled(true);
+                            $scheduledCommand->setStatus(ScheduledCommand::STATUS_RETRIES_EXCEEDED);
+                            $this->writeLine(
+                                "<error>Scheduled command {$scheduledCommand->getId()}, '{$scheduledCommand->getDescription()}', " .
+                                "has failed and exceeded the maximum number of retries.</error>"
+                            );
+                            if ($scheduledCommand->getClearData()) {
+                                $scheduledCommand->setData(null);
+                            }
+                        } else {
+                            $scheduledCommand->setRetryCount($scheduledCommand->getRetryCount() + 1);
+                            $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
+                            $runAt = new DateTime("+ {$scheduledCommand->getRetryDelay()} second");
+                            $scheduledCommand->setRunAt($runAt);
+                            $this->writeLine(
+                                "<comment>Scheduled command {$scheduledCommand->getId()}, '{$scheduledCommand->getDescription()}', has failed and has been rescheduled.</comment>"
+                            );
+                        }
                     } else {
-                        $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
+                        // Disable any once-only commands
+                        if (empty($scheduledCommand->getCronExpression())) {
+                            $scheduledCommand->setDisabled(true);
+                            $scheduledCommand->setStatus(ScheduledCommand::STATUS_COMPLETED);
+                            if ($scheduledCommand->getClearData()) {
+                                $scheduledCommand->setData(null);
+                            }
+                        } else {
+                            $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
+                        }
                     }
-                    if ($scheduledCommand->getClearData()) {
-                        $scheduledCommand->setData(null);
-                    }
+
 
                     // Initialise on-success and on-failure commands
                     if (empty($process->getExitCode()) && $scheduledCommand->getOnSuccessCommand() !== null) {

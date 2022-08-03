@@ -16,12 +16,14 @@ use Xact\CommandScheduler\Scheduler\CommandScheduler;
 class CommandSchedulerController extends AbstractController
 {
     /**
-     * @Route("/command-scheduler/list", name="xact_command_scheduler_list")
+     * @Route("/command-scheduler/list/{completed}", name="xact_command_scheduler_list", options={"completed"=false})
+     * @Route("/command-scheduler/list")
      */
-    public function list(CommandScheduler $scheduler): Response
+    public function list(CommandScheduler $scheduler, bool $completed = false): Response
     {
         return $this->render('@XactCommandScheduler/index.html.twig', [
-            'scheduledCommands' => $scheduler->getAll(),
+            'scheduledCommands' => ($completed ? $scheduler->getAll() : $scheduler->getActive()),
+            'completed' => $completed,
         ]);
     }
 
