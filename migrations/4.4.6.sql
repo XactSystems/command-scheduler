@@ -1,5 +1,5 @@
 ALTER TABLE ScheduledCommand
-ADD COLUMN `RunAt` datetime DEFAULT NULL,
+ADD COLUMN `RunAt` datetime DEFAULT NULL AFTER CronExpression,
 ADD COLUMN `Data` longtext COLLATE utf8mb4_unicode_ci AFTER Arguments,
 ADD COLUMN `ClearData` bit(1) DEFAULT b'1' AFTER Data,
 ADD COLUMN `OnSuccessCommandID` bigint DEFAULT NULL AFTER RunImmediately,
