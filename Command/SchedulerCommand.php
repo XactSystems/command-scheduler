@@ -149,7 +149,11 @@ class SchedulerCommand extends Command
                     }
                 }
 
-                if ($execute || $command->getRunAt() <= $tNow) {
+                if (
+                    $execute
+                    || ($command->getRunAt() !== null && $command->getRunAt() <= $tNow)
+                    || ($command->getRetryAt() !== null && $command->getRetryAt() <= $tNow)
+                ) {
                     $this->executeCommand($command);
                 }
 
@@ -263,6 +267,7 @@ class SchedulerCommand extends Command
                     if ($scheduledCommand->getLastResultCode() !== 0 && $scheduledCommand->getRetryOnFail()) {
                         if ($scheduledCommand->getRetryCount() >= $scheduledCommand->getRetryMaxAttempts()) {
                             $scheduledCommand->setDisabled(true);
+                            $scheduledCommand->setRetryAt(null);
                             $scheduledCommand->setStatus(ScheduledCommand::STATUS_RETRIES_EXCEEDED);
                             $this->writeLine(
                                 "<error>Scheduled command {$scheduledCommand->getId()}, '{$scheduledCommand->getDescription()}', " .
@@ -274,8 +279,8 @@ class SchedulerCommand extends Command
                         } else {
                             $scheduledCommand->setRetryCount($scheduledCommand->getRetryCount() + 1);
                             $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
-                            $runAt = new DateTime("+ {$scheduledCommand->getRetryDelay()} second");
-                            $scheduledCommand->setRunAt($runAt);
+                            $retryAt = new DateTime("+ {$scheduledCommand->getRetryDelay()} second");
+                            $scheduledCommand->setRetryAt($retryAt);
                             $this->writeLine(
                                 "<comment>Scheduled command {$scheduledCommand->getId()}, '{$scheduledCommand->getDescription()}', has failed and has been rescheduled.</comment>"
                             );
@@ -291,6 +296,7 @@ class SchedulerCommand extends Command
                         } else {
                             $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
                         }
+                        $scheduledCommand->setRetryAt(null);
                     }
 
 

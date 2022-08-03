@@ -50,6 +50,9 @@ class CommandSchedulerController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$command->getDisabled()) {
+                $command->setStatus(ScheduledCommand::STATUS_PENDING);
+            }
             $scheduler->set($command);
 
             $this->addFlash('success', "The schedule for command '{$command->getCommand()} has been updated.'");

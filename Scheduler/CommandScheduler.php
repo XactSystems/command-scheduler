@@ -82,12 +82,15 @@ class CommandScheduler
     }
 
     /**
-     * Disable by ID
+     * Disable/Enable by ID
      */
     public function disable(int $id, bool $disable = true): ScheduledCommand
     {
         $scheduledCommand = $this->get($id);
         $scheduledCommand->setDisabled($disable);
+        if (!$disable) {
+            $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
+        }
         $this->em->flush();
 
         return $scheduledCommand;
