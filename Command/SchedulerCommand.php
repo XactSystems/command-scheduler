@@ -266,9 +266,13 @@ class SchedulerCommand extends Command
                     // Reschedule failed commands if retry is enabled
                     if ($scheduledCommand->getLastResultCode() !== 0 && $scheduledCommand->getRetryOnFail()) {
                         if ($scheduledCommand->getRetryCount() >= $scheduledCommand->getRetryMaxAttempts()) {
-                            $scheduledCommand->setDisabled(true);
                             $scheduledCommand->setRetryAt(null);
-                            $scheduledCommand->setStatus(ScheduledCommand::STATUS_RETRIES_EXCEEDED);
+                            if (empty($scheduledCommand->getCronExpression())) {
+                                $scheduledCommand->setDisabled(true);
+                                $scheduledCommand->setStatus(ScheduledCommand::STATUS_RETRIES_EXCEEDED);
+                            } else {
+                                $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
+                            }
                             $this->writeLine(
                                 "<error>Scheduled command {$scheduledCommand->getId()}, '{$scheduledCommand->getDescription()}', " .
                                 "has failed and exceeded the maximum number of retries.</error>"
