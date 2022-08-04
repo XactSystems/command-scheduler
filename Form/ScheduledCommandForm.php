@@ -39,6 +39,9 @@ class ScheduledCommandForm extends AbstractType
             ->add('cronExpression', TextType::class, ['label' => 'Cron Expression', 'required' => false])
             ->add('runImmediately', CheckboxType::class, ['label' => 'Run Immediately', 'required' => false])
             ->add('priority', IntegerType::class, ['label' => 'Priority', 'required' => true, 'attr' => ['min' => 1, 'max' => 100]])
+            ->add('retryOnFail', CheckboxType::class, ['label' => 'Retry on Fail', 'required' => false])
+            ->add('retryDelay', IntegerType::class, ['label' => 'Retry Delay', 'required' => true, 'attr' => ['min' => 1, 'max' => 9999]])
+            ->add('retryMaxAttempts', IntegerType::class, ['label' => 'Retry Max Attempts', 'required' => true, 'attr' => ['min' => 1, 'max' => 9999]])
             ->add('disabled', CheckboxType::class, ['label' => 'Disabled', 'required' => false])
             ->add('save', SubmitType::class, ['label' => 'Save Command'])
         ;

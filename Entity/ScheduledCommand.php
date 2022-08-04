@@ -20,6 +20,7 @@ class ScheduledCommand
     public const STATUS_RUNNING = 'RUNNING';
     public const STATUS_COMPLETED = 'COMPLETED';
     public const STATUS_FAILED = 'FAILED';
+    public const STATUS_RETRIES_EXCEEDED = 'RETRIES_EXCEEDED';
 
     /**
      * @ORM\Column(name="ID", type="bigint")
@@ -31,7 +32,7 @@ class ScheduledCommand
     /**
      * @ORM\Column(name="Description", type="string", nullable=true)
      */
-    private string $description = '';
+    private ?string $description = null;
 
     /**
      * @ORM\Column(name="Command", type="string")
@@ -78,6 +79,31 @@ class ScheduledCommand
      * @ORM\Column(name="RunImmediately", type="boolean")
      */
     private bool $runImmediately = true;
+
+    /**
+     * @ORM\Column(name="RetryOnFail", type="boolean")
+     */
+    private bool $retryOnFail = false;
+
+    /**
+     * @ORM\Column(name="RetryDelay", type="integer")
+     */
+    private int $retryDelay = 60;
+
+    /**
+     * @ORM\Column(name="RetryMaxAttempts", type="integer")
+     */
+    private int $retryMaxAttempts = 60;
+
+    /**
+     * @ORM\Column(name="RetryCount", type="integer")
+     */
+    private int $retryCount = 0;
+
+    /**
+     * @ORM\Column(name="RetryAt", type="datetime", nullable=true)
+     */
+    private ?\DateTime $retryAt = null;
 
     /**
      * @ORM\Column(name="Status", type="string", length=20, nullable=false)
@@ -150,12 +176,12 @@ class ScheduledCommand
         return $this;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
 
@@ -284,6 +310,66 @@ class ScheduledCommand
             $this->cronExpression = null;
             $this->runAt = null;
         }
+
+        return $this;
+    }
+
+    public function getRetryOnFail(): bool
+    {
+        return $this->retryOnFail;
+    }
+
+    public function setRetryOnFail(bool $retryOnFail): self
+    {
+        $this->retryOnFail = $retryOnFail;
+
+        return $this;
+    }
+
+    public function getRetryDelay(): int
+    {
+        return $this->retryDelay;
+    }
+
+    public function setRetryDelay(int $retryDelay): self
+    {
+        $this->retryDelay = $retryDelay;
+
+        return $this;
+    }
+
+    public function getRetryMaxAttempts(): int
+    {
+        return $this->retryMaxAttempts;
+    }
+
+    public function setRetryMaxAttempts(int $retryMaxAttempts): self
+    {
+        $this->retryMaxAttempts = $retryMaxAttempts;
+
+        return $this;
+    }
+
+    public function getRetryCount(): int
+    {
+        return $this->retryCount;
+    }
+
+    public function setRetryCount(int $retryCount): self
+    {
+        $this->retryCount = $retryCount;
+
+        return $this;
+    }
+
+    public function getRetryAt(): ?\DateTime
+    {
+        return $this->retryAt;
+    }
+
+    public function setRetryAt(?\DateTime $retryAt): self
+    {
+        $this->retryAt = $retryAt;
 
         return $this;
     }

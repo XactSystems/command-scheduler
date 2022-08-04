@@ -1,10 +1,22 @@
 {% extends "@XactCommandScheduler/layout.html.twig" %}
 
 {% block title %}
-	{{ 'Scheduled Commands'|trans }}
+    {% if completed == true %}
+    	{{ 'Completed Scheduled Commands'|trans }}
+    {% else %}
+    	{{ 'Active Scheduled Commands'|trans }}
+    {% endif %}
 {% endblock title %}
 
 {% block content %}
+    <div class="mb-2">
+    	<a href="{{ path('xact_command_scheduler_new') }}" class="btn btn-primary btn-sm mr-3" role="button">{{ "New Scheduled Command"|trans }}</a>
+		{% if completed == true %}
+        	<a href="{{ path('xact_command_scheduler_list') }}" class="btn btn-success btn-sm" role="button">{{ "Show Active Commands"|trans }}</a>
+        {% else %}
+        	<a href="{{ path('xact_command_scheduler_list', {'completed': true}) }}" class="btn btn-success btn-sm" role="button">{{ "Show Completed Commands"|trans }}</a>
+        {% endif %}
+    </div>
 	<div class="table-responsive table-stripped">
 		<table class="table">
 			<thead>

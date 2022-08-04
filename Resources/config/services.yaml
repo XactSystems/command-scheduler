@@ -21,6 +21,11 @@ services:
         autowire: true
         resource: '../../Form/*'
 
+    Xact\CommandScheduler\Repository\:
+        public: true
+        autowire: true
+        resource: '../../Repository/*'
+
     Xact\CommandScheduler\Scheduler\:
         public: true
         autowire: true

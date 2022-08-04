@@ -16,13 +16,22 @@ class CommandSchedulerFactory
      *
      * @param string[]|null $arguments
      */
-    public static function createImmediateCommand(string $description, string $command, ?array $arguments): ScheduledCommand
-    {
+    public static function createImmediateCommand(
+        string $description,
+        string $command,
+        ?array $arguments = null,
+        bool $retryOnFail = false,
+        int $retryDelay = 60,
+        int $retryMaxAttempts = 60
+    ): ScheduledCommand {
         $scheduledCommand = new ScheduledCommand();
         $scheduledCommand->setDescription($description);
         $scheduledCommand->setCommand($command);
         $scheduledCommand->setArguments($arguments);
         $scheduledCommand->setRunImmediately(true);
+        $scheduledCommand->setRetryOnFail($retryOnFail);
+        $scheduledCommand->setRetryDelay($retryDelay);
+        $scheduledCommand->setRetryMaxAttempts($retryMaxAttempts);
 
         return $scheduledCommand;
     }
@@ -32,8 +41,15 @@ class CommandSchedulerFactory
      *
      * @param string[]|null $arguments
      */
-    public static function createCronCommand(string $cronExpression, string $description, string $command, ?array $arguments): ScheduledCommand
-    {
+    public static function createCronCommand(
+        string $cronExpression,
+        string $description,
+        string $command,
+        ?array $arguments = null,
+        bool $retryOnFail = false,
+        int $retryDelay = 60,
+        int $retryMaxAttempts = 60
+    ): ScheduledCommand {
         if (!CronExpression::isValidExpression($cronExpression)) {
             throw new InvalidArgumentException("The cron expression '{$cronExpression}' is invalid");
         }
@@ -43,6 +59,9 @@ class CommandSchedulerFactory
         $scheduledCommand->setDescription($description);
         $scheduledCommand->setCommand($command);
         $scheduledCommand->setArguments($arguments);
+        $scheduledCommand->setRetryOnFail($retryOnFail);
+        $scheduledCommand->setRetryDelay($retryDelay);
+        $scheduledCommand->setRetryMaxAttempts($retryMaxAttempts);
 
         return $scheduledCommand;
     }
