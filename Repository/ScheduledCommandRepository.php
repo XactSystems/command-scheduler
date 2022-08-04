@@ -5,17 +5,23 @@ declare(strict_types=1);
 namespace Xact\CommandScheduler\Repository;
 
 use DateTime;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Entity\ScheduledCommandHistory;
 
 /**
  * ScheduledCommand repository class
  */
-class ScheduledCommandRepository extends EntityRepository
+class ScheduledCommandRepository extends ServiceEntityRepository
 {
     protected string $commandEntity = ScheduledCommand::class;
     protected string $historyEntity = ScheduledCommandHistory::class;
+
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, $this->commandEntity);
+    }
 
     /**
      * Finds an entity by its primary key / identifier.
@@ -46,6 +52,21 @@ class ScheduledCommandRepository extends EntityRepository
             AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP())
             AND c.status = 'PENDING'
             ORDER BY c.priority DESC"
+        )->getResult();
+    }
+
+    /**
+     * Return an array of completed scheduled commands
+     *
+     * @return ScheduledCommand[]
+     */
+    public function getCompletedCommands(): array
+    {
+        return $this->getEntityManager()->createQuery(
+            "SELECT c
+            FROM {$this->commandEntity} c
+            WHERE c.disabled = true
+            ORDER BY c.priority DESC, c.lastRunAt DESC"
         )->getResult();
     }
 
