@@ -22,15 +22,15 @@
     "minimum-stability": "stable",
     "require": {
         "php": "^7.4",
-        "doctrine/doctrine-bundle": "^1.12",
-        "doctrine/orm": "^2.6",
-        "symfony/asset": "^3.4",
-        "symfony/form": "^3.4",
-        "symfony/process": "^3.4",
-        "symfony/twig-bundle": "^3.4",
+        "doctrine/doctrine-bundle": "^2.1",
+        "doctrine/orm": "^2.7",
+        "symfony/asset": "^4.4",
+        "symfony/form": "^4.4",
+        "symfony/process": "^4.4",
+        "symfony/twig-bundle": "^4.4",
         "symfony/yaml": "*",
         "dragonmantank/cron-expression": "^3.0",
-        "sensio/framework-extra-bundle": "~3.0|~5.0"
+        "sensio/framework-extra-bundle": "^6.2"
     },
     "require-dev": {
         "symfony/debug-pack": "*",
@@ -41,7 +41,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "3.4.*"
+            "require": "4.4.*"
         }
     }
 }
