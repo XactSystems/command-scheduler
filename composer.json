@@ -1,7 +1,6 @@
 {
     "name": "xactsystems/command-scheduler",
     "description": "A Symfony command scheduler.",
-    "version": "3.4.22",
     "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
