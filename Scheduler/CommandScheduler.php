@@ -1,25 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Scheduler;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
+use Xact\CommandScheduler\Repository\ScheduledCommandRepository;
 
 /**
  * Command scheduler service class
  */
 class CommandScheduler
 {
-    /**
-     * @var \Doctrine\ORM\EntityManagerInterface
-     */
-    private $em;
+    private ScheduledCommandRepository $commandRepository;
+    private EntityManagerInterface $em;
 
-    /**
-     * Class constructor.
-     */
-    public function __construct(EntityManagerInterface $em)
+
+    public function __construct(ScheduledCommandRepository $commandRepository, EntityManagerInterface $em)
     {
+        $this->commandRepository = $commandRepository;
         $this->em = $em;
     }
 
@@ -28,7 +28,7 @@ class CommandScheduler
      */
     public function get(int $id): ScheduledCommand
     {
-        return $this->em->find(ScheduledCommand::class, $id);
+        return $this->commandRepository->findById($id);
     }
 
     /**
@@ -58,7 +58,17 @@ class CommandScheduler
      */
     public function getActive(): array
     {
-        return $this->em->getRepository(ScheduledCommand::class)->getActiveCommands();
+        return $this->commandRepository->getActiveCommands();
+    }
+
+    /**
+     * Get an array of completed commands
+     *
+     * @return ScheduledCommand[]
+     */
+    public function getCompleted(): array
+    {
+        return $this->commandRepository->getCompletedCommands();
     }
 
     /**
@@ -68,16 +78,19 @@ class CommandScheduler
      */
     public function getAll(): array
     {
-        return $this->em->getRepository(ScheduledCommand::class)->findAll();
+        return $this->commandRepository->findAll();
     }
 
     /**
-     * Disable by ID
+     * Disable/Enable by ID
      */
     public function disable(int $id, bool $disable = true): ScheduledCommand
     {
         $scheduledCommand = $this->get($id);
         $scheduledCommand->setDisabled($disable);
+        if (!$disable) {
+            $scheduledCommand->setStatus(ScheduledCommand::STATUS_PENDING);
+        }
         $this->em->flush();
 
         return $scheduledCommand;

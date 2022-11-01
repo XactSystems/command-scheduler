@@ -1,15 +1,20 @@
 doctrine:
     dbal:
-        url: "sqlite:///:memory:"
-        driver: 'pdo_sqlite'
+        connections:
+            test:
+                url: "sqlite:///:memory:"
+                driver: 'pdo_sqlite'
 
     orm:
         auto_generate_proxy_classes: true
-        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
-        auto_mapping: true
-        mappings:
-            XactCommandSchedulerBundle:
-                is_bundle: false
-                type: annotation
-                dir: '%kernel.project_dir%/Entity'
-                prefix: 'Xact\CommandScheduler\Entity'
+        entity_managers:
+            test:
+                connection: test
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                auto_mapping: true
+                mappings:
+                    XactCommandSchedulerBundle:
+                        is_bundle: false
+                        type: annotation
+                        dir: '%kernel.project_dir%/Entity'
+                        prefix: 'Xact\CommandScheduler\Entity'

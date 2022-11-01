@@ -110,6 +110,90 @@ public function myControllerAction(CommandScheduler $scheduler)
 }
 ```
 
+### Creating commands via the CommandSchedulerFactory
+When using the factory, you can set the the configuration values for the following command settings:
+```yaml
+#config/bundles/xact_command_scheduler.yml
+
+xact_command_scheduler:
+    clear_data: ~          # Defaults to true
+    retry_on_fail: ~       # Defaults to false
+    retry_delay: ~         # Defaults to 60
+    retry_max_attempts: ~  # Defaults to 60
+```
+
+You can then use the factory methods to create your scheduled commands.
+The configured parameters above will be set on commands created via factory methods unless overwritten in the method calls:
+```php
+use Xact\CommandScheduler\CommandSchedulerFactory;
+
+class MyController extends AbstractController
+{
+    private CommandSchedulerFactory $commandFactory;
+
+    public function __controller(CommandSchedulerFactory $commandFactory) {
+        $this->commandFactory = $commandFactory;
+    }
+
+    public function myEmailAction(EntityManagerInterface $em) {
+        $myLargeDataObject = 'Some enormous serialized value you want to store in the command and probably delete once the command is complete.';
+        $command = $this->commandFactory->createImmediateCommand(
+            'My test command',
+            'app:test-command',
+            null,
+            $myLargeDataObject,
+        );
+        $em->persist($command);
+        $em->flush();
+    }
+}
+```
+
+#### Factory methods:
+```php
+    /**
+     * Create a command to run immediately
+     *
+     * @param string[]|null $arguments
+     * @param bool|null $clearData If null, the configuration value 'clear_data' is used. Default true.
+     * @param bool|null $retryOnFail If null, the configuration value 'retry_on_fail' is used. Default false.
+     * @param int|null $retryDelay If null, the configuration value 'retry_delay' is used. Default 60.
+     * @param int|null $retryMaxAttempts If null, the configuration value 'retry_max_attempts' is used. Default 60.
+     */
+    public function createImmediateCommand(
+        string $description,
+        string $command,
+        ?array $arguments = null,
+        ?string $data = null,
+        ?bool $clearData = null,
+        ?bool $retryOnFail = null,
+        ?int $retryDelay = null,
+        ?int $retryMaxAttempts = null
+    ): ScheduledCommand {}
+
+    /**
+     * Create a command scheduled by a CRON expression
+     *
+     * @param string[]|null $arguments
+     * @param bool|null $clearData If null, the configuration value 'clear_data' is used. Default true.
+     * @param bool|null $retryOnFail If null, the configuration value 'retry_on_fail' is used. Default false.
+     * @param int|null $retryDelay If null, the configuration value 'retry_delay' is used. Default 60.
+     * @param int|null $retryMaxAttempts If null, the configuration value 'retry_max_attempts' is used. Default 60.
+     */
+    public function createCronCommand(
+        string $cronExpression,
+        string $description,
+        string $command,
+        ?array $arguments = null,
+        ?string $data = null,
+        ?bool $clearData = null,
+        ?bool $retryOnFail = null,
+        ?int $retryDelay = null,
+        ?int $retryMaxAttempts = null
+    ): ScheduledCommand {}
+```
+
+
 Cron notes
 ----------
 The bundle uses dragonmantank/cron-expression CronExpression class to determine run times and you can use the non-standard pre-defined scheduling definitions. See [Cron Format](https://en.wikipedia.org/wiki/Cron#Format) for more details.

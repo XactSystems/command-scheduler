@@ -1,19 +1,47 @@
 services:
     # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
+        autowire: false      # Automatically injects dependencies in your services.
+        public: false
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-    Xact\CommandScheduler\:
+    Xact\CommandScheduler\CommandSchedulerFactory:
         public: true
-        resource: '../../*'
-        exclude: '../../{DependencyInjection,Entity,Resources,Scheduler,Tests}'
+        autowire: true
+        arguments:
+            $clearData: '%xact_command_scheduler.clear_data%'
+            $retryOnFail: '%xact_command_scheduler.retry_on_fail%'
+            $retryDelay: '%xact_command_scheduler.retry_delay%'
+            $retryMaxAttempts: '%xact_command_scheduler.retry_max_attempts%'
 
     Xact\CommandScheduler\Command\:
+        autowire: true
         public: true
         resource: '../../Command/*'
         tags: [command_handler]
 
-    Xact\CommandScheduler\Scheduler\CommandScheduler:
+    Xact\CommandScheduler\Controller\:
         public: true
         autowire: true
+        resource: '../../Controller/*'
+
+    Xact\CommandScheduler\Form\:
+        public: true
+        autowire: true
+        resource: '../../Form/*'
+
+    Xact\CommandScheduler\Repository\:
+        public: true
+        autowire: true
+        resource: '../../Repository/*'
+
+    Xact\CommandScheduler\Scheduler\:
+        public: true
+        autowire: true
+        resource: '../../Scheduler/*'
+        exclude: '../../Scheduler/ActiveCommand.php'
+
+    Xact\CommandScheduler\Service\:
+        public: true
+        autowire: true
+        resource: '../../Service/*'

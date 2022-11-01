@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,21 +13,21 @@ use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Form\ScheduledCommandForm;
 use Xact\CommandScheduler\Scheduler\CommandScheduler;
 
-class CommandSchedulerController extends Controller
+class CommandSchedulerController extends AbstractController
 {
     /**
-     * @Route("/command-scheduler/list", name="xact_command_scheduler_list")
+     * @Route("/command-scheduler/list/{completed}", name="xact_command_scheduler_list", options={"completed"=false})
+     * @Route("/command-scheduler/list")
      */
-    public function list(CommandScheduler $scheduler): Response
+    public function list(CommandScheduler $scheduler, bool $completed = false): Response
     {
         return $this->render('@XactCommandScheduler/index.html.twig', [
-            'scheduledCommands' => $scheduler->getAll(),
+            'scheduledCommands' => ($completed ? $scheduler->getAll() : $scheduler->getActive()),
+            'completed' => $completed,
         ]);
     }
 
     /**
-     * @param \Xact\CommandScheduler\Scheduler\CommandScheduler $scheduler
-     *
      * @Route("/command-scheduler/history/{id}", name="xact_command_scheduler_history")
      * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
      */
@@ -48,6 +50,9 @@ class CommandSchedulerController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$command->getDisabled()) {
+                $command->setStatus(ScheduledCommand::STATUS_PENDING);
+            }
             $scheduler->set($command);
 
             $this->addFlash('success', "The schedule for command '{$command->getCommand()} has been updated.'");

@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xact\CommandScheduler\Entity;
 
-//annotations
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * ScheduledCommand
@@ -18,127 +19,139 @@ class ScheduledCommand
     public const STATUS_PENDING = 'PENDING';
     public const STATUS_RUNNING = 'RUNNING';
     public const STATUS_COMPLETED = 'COMPLETED';
+    public const STATUS_FAILED = 'FAILED';
+    public const STATUS_RETRIES_EXCEEDED = 'RETRIES_EXCEEDED';
 
     /**
-     * @var int
-     *
      * @ORM\Column(name="ID", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    private ?int $id = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="Description", type="string", nullable=true)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="Command", type="string")
      */
-    private $command;
+    private string $command = '';
 
     /**
-     * @var array
-     *
-     * @ORM\Column(name="Arguments", type="json_array", nullable=true)
+     * @var mixed[]|null
+     * @ORM\Column(name="Arguments", type="json", nullable=true)
      */
-    private $arguments;
+    private ?array $arguments = null;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="Data", type="string")
+     * @ORM\Column(name="Data", type="string", nullable=true)
      */
-    private $data;
+    private ?string $data = null;
 
     /**
-     * @var bool
-     *
      * @ORM\Column(name="ClearData", type="boolean")
      */
-    private $clearData = true;
+    private bool $clearData = true;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="CronExpression", type="string", nullable=true)
      */
-    private $cronExpression;
+    private ?string $cronExpression = null;
 
     /**
-     * @var \DateTime|null
-     *
      * @ORM\Column(name="RunAt", type="datetime", nullable=true)
      */
-    private $runAt;
+    private ?\DateTime $runAt = null;
 
     /**
-     * @var int
-     *
      * @ORM\Column(name="Priority", type="integer")
      */
-    private $priority = 1;
+    private int $priority = 1;
 
     /**
-     * @var bool
-     *
      * @ORM\Column(name="Disabled", type="boolean")
      */
-    private $disabled = false;
+    private bool $disabled = false;
 
     /**
-     * @var bool
-     *
      * @ORM\Column(name="RunImmediately", type="boolean")
      */
-    private $runImmediately = true;
+    private bool $runImmediately = true;
 
     /**
-     * @var string
-     *
+     * @ORM\Column(name="RetryOnFail", type="boolean")
+     */
+    private bool $retryOnFail = false;
+
+    /**
+     * @ORM\Column(name="RetryDelay", type="integer")
+     */
+    private int $retryDelay = 60;
+
+    /**
+     * @ORM\Column(name="RetryMaxAttempts", type="integer")
+     */
+    private int $retryMaxAttempts = 60;
+
+    /**
+     * @ORM\Column(name="RetryCount", type="integer")
+     */
+    private int $retryCount = 0;
+
+    /**
+     * @ORM\Column(name="RetryAt", type="datetime", nullable=true)
+     */
+    private ?\DateTime $retryAt = null;
+
+    /**
      * @ORM\Column(name="Status", type="string", length=20, nullable=false)
      */
-    private $status = self::STATUS_PENDING;
+    private string $status = self::STATUS_PENDING;
 
     /**
-     * @var \DateTime|null
-     *
      * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
      */
-    private $lastRunAt;
+    private ?\DateTime $lastRunAt = null;
 
     /**
-     * @var integer
-     *
      * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
      */
-    private $lastResultCode;
+    private ?int $lastResultCode = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="LastResult", type="text", nullable=true)
      */
-    private $lastResult;
+    private ?string $lastResult = null;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="LastError", type="text", nullable=true)
      */
-    private $lastError;
+    private ?string $lastError = null;
 
     /**
-     * @var Collection
-     *
-     * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade="all", orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
+     * @ORM\JoinColumn(name="OnSuccessCommandID", referencedColumnName="ID", nullable=true)
      */
-    private $commandHistory;
+    private ?self $onSuccessCommand = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
+     * @ORM\JoinColumn(name="OnFailureCommandID", referencedColumnName="ID", nullable=true)
+     */
+    private ?self $onFailureCommand = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
+     * @ORM\JoinColumn(name="OriginalCommandID", referencedColumnName="ID", nullable=true)
+     */
+    private ?self $originalCommand = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade={"all"}, orphanRemoval=true)
+     */
+    private Collection $commandHistory;
 
     /**
      * @param string[] $arguments
@@ -168,14 +181,14 @@ class ScheduledCommand
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
 
         return $this;
     }
 
-    public function getCommand(): ?string
+    public function getCommand(): string
     {
         return $this->command;
     }
@@ -188,7 +201,7 @@ class ScheduledCommand
     }
 
     /**
-     * @return string[]|null
+     * @return mixed[]|null
      */
     public function getArguments(): ?array
     {
@@ -196,7 +209,7 @@ class ScheduledCommand
     }
 
     /**
-     * @param string[] $arguments
+     * @param mixed[] $arguments
      */
     public function setArguments(?array $arguments): self
     {
@@ -217,7 +230,7 @@ class ScheduledCommand
         return $this;
     }
 
-    public function getClearData(): ?bool
+    public function getClearData(): bool
     {
         return $this->clearData;
     }
@@ -301,7 +314,67 @@ class ScheduledCommand
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getRetryOnFail(): bool
+    {
+        return $this->retryOnFail;
+    }
+
+    public function setRetryOnFail(bool $retryOnFail): self
+    {
+        $this->retryOnFail = $retryOnFail;
+
+        return $this;
+    }
+
+    public function getRetryDelay(): int
+    {
+        return $this->retryDelay;
+    }
+
+    public function setRetryDelay(int $retryDelay): self
+    {
+        $this->retryDelay = $retryDelay;
+
+        return $this;
+    }
+
+    public function getRetryMaxAttempts(): int
+    {
+        return $this->retryMaxAttempts;
+    }
+
+    public function setRetryMaxAttempts(int $retryMaxAttempts): self
+    {
+        $this->retryMaxAttempts = $retryMaxAttempts;
+
+        return $this;
+    }
+
+    public function getRetryCount(): int
+    {
+        return $this->retryCount;
+    }
+
+    public function setRetryCount(int $retryCount): self
+    {
+        $this->retryCount = $retryCount;
+
+        return $this;
+    }
+
+    public function getRetryAt(): ?\DateTime
+    {
+        return $this->retryAt;
+    }
+
+    public function setRetryAt(?\DateTime $retryAt): self
+    {
+        $this->retryAt = $retryAt;
+
+        return $this;
+    }
+
+    public function getStatus(): string
     {
         return $this->status;
     }
@@ -318,7 +391,7 @@ class ScheduledCommand
         return $this->lastResultCode;
     }
 
-    public function setLastResultCode(int $lastResultCode): self
+    public function setLastResultCode(?int $lastResultCode): self
     {
         $this->lastResultCode = $lastResultCode;
 
@@ -330,7 +403,7 @@ class ScheduledCommand
         return $this->lastResult;
     }
 
-    public function setLastResult(string $lastResult): self
+    public function setLastResult(?string $lastResult): self
     {
         $this->lastResult = $lastResult;
 
@@ -342,7 +415,7 @@ class ScheduledCommand
         return $this->lastError;
     }
 
-    public function setLastError(string $lastError): self
+    public function setLastError(?string $lastError): self
     {
         $this->lastError = $lastError;
 
@@ -369,6 +442,42 @@ class ScheduledCommand
     public function setCommandHistory(Collection $commandHistory): self
     {
         $this->commandHistory = $commandHistory;
+
+        return $this;
+    }
+
+    public function getOnSuccessCommand(): ?self
+    {
+        return $this->onSuccessCommand;
+    }
+
+    public function setOnSuccessCommand(?self $onSuccessCommand): self
+    {
+        $this->onSuccessCommand = $onSuccessCommand;
+
+        return $this;
+    }
+
+    public function getOnFailureCommand(): ?self
+    {
+        return $this->onFailureCommand;
+    }
+
+    public function setOnFailureCommandId(?self $onFailureCommand): self
+    {
+        $this->onFailureCommand = $onFailureCommand;
+
+        return $this;
+    }
+
+    public function getOriginalCommand(): ?self
+    {
+        return $this->originalCommand;
+    }
+
+    public function setOriginalCommand(?self $originalCommand): self
+    {
+        $this->originalCommand = $originalCommand;
 
         return $this;
     }

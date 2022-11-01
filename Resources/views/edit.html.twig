@@ -14,6 +14,9 @@
         {{ form_row( form.arguments, {'attr': {'placeholder': '--argument1=foo --bar'} } ) }}
         {{ form_row( form.cronExpression, {'attr': {'placeholder': '*/10 * * * *'} } ) }}
         {{ form_row( form.priority, {'attr': {'placeholder': '1 - 100'} } ) }}
+        {{ form_row( form.retryOnFail ) }}
+        {{ form_row( form.retryDelay ) }}
+        {{ form_row( form.retryMaxAttempts ) }}
         <div>
             {{ form_widget( form.runImmediately ) }}
             {{ form_label( form.runImmediately ) }}
