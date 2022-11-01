@@ -23,6 +23,7 @@ class SchedulerCommand extends Command
 {
     protected static string $commandName = 'xact:command-scheduler';
 
+    private CommandSchedulerFactory $factory;
     private EntityManagerInterface $em;
     private int $startTime = 0;
     private int $maxRuntime = 0;
@@ -36,10 +37,11 @@ class SchedulerCommand extends Command
     /** @var ActiveCommand[] */
     private array $activeCommands = [];
 
-    public function __construct(EntityManagerInterface $em, ScheduledCommandRepository $commandRepository, LoggerInterface $logger)
+    public function __construct(CommandSchedulerFactory $factory, EntityManagerInterface $em, ScheduledCommandRepository $commandRepository, LoggerInterface $logger)
     {
         parent::__construct(self::$commandName);
 
+        $this->factory = $factory;
         $this->em = $em;
         $this->commandRepository = $commandRepository;
         $this->logger = $logger;
@@ -261,7 +263,7 @@ class SchedulerCommand extends Command
                     $scheduledCommand->setLastResult($resultTest);
                     $scheduledCommand->setLastError($process->getErrorOutput());
 
-                    CommandSchedulerFactory::createCommandHistory($scheduledCommand);
+                    $this->factory->createCommandHistory($scheduledCommand);
 
                     // Reschedule failed commands if retry is enabled
                     if ($scheduledCommand->getLastResultCode() !== 0 && $scheduledCommand->getRetryOnFail()) {

@@ -6,18 +6,22 @@ namespace Xact\CommandScheduler\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
-class XactCommandSchedulerExtension extends Extension
+class XactCommandSchedulerExtension extends ConfigurableExtension
 {
     /**
-     * @param mixed[] $configs
-     * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+     * @param mixed[] $mergedConfig
      */
-    public function load(array $configs, ContainerBuilder $container): void
+    public function loadInternal(array $mergedConfig, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yaml');
+
+        $container->setParameter('xact_command_scheduler.clear_data', $mergedConfig['clear_data']);
+        $container->setParameter('xact_command_scheduler.retry_on_fail', $mergedConfig['retry_on_fail']);
+        $container->setParameter('xact_command_scheduler.retry_delay', $mergedConfig['retry_delay']);
+        $container->setParameter('xact_command_scheduler.retry_max_attempts', $mergedConfig['retry_max_attempts']);
     }
 }

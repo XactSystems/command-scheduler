@@ -5,6 +5,15 @@ services:
         public: false
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    Xact\CommandScheduler\CommandSchedulerFactory:
+        public: true
+        autowire: true
+        arguments:
+            $clearData: '%xact_command_scheduler.clear_data%'
+            $retryOnFail: '%xact_command_scheduler.retry_on_fail%'
+            $retryDelay: '%xact_command_scheduler.retry_delay%'
+            $retryMaxAttempts: '%xact_command_scheduler.retry_max_attempts%'
+
     Xact\CommandScheduler\Command\:
         autowire: true
         public: true
