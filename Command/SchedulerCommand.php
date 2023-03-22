@@ -109,7 +109,8 @@ class SchedulerCommand extends Command
         }
 
         while (true) {
-            if ($this->exceededMaxRuntime()) {
+            if ($this->isMaxRuntimeExceeded()) {
+                $this->writeDebugLine("SchedulerCommand::runCommands quitting process loop.");
                 break;
             }
 
@@ -135,9 +136,11 @@ class SchedulerCommand extends Command
     /**
      * Determine if the maximum runtime has been exceeded
      */
-    protected function exceededMaxRuntime(): bool
+    protected function isMaxRuntimeExceeded(): bool
     {
-        return (($this->maxRuntime > 0) && (time() - $this->startTime) > $this->maxRuntime);
+        $currentTime = time();
+        $this->writeDebugLine("SchedulerCommand::isMaxRuntimeExceeded maxRuntime:{$this->maxRuntime}, startTime:{$this->startTime}, time:{$currentTime}.");
+        return (($this->maxRuntime > 0) && ($currentTime - $this->startTime) > $this->maxRuntime);
     }
 
     protected function processCommands(): void
@@ -145,7 +148,7 @@ class SchedulerCommand extends Command
         $tNow = new \DateTime();
         $commands = $this->commandRepository->getActiveCommands();
         $commandCount = count($commands);
-        $this->writeDebugLine("Method processCommands found {$commandCount} commands to process.");
+        $this->writeDebugLine("SchedulerCommand::processCommands found {$commandCount} commands to process.");
         foreach ($commands as $command) {
             try {
                 $execute = $command->getRunImmediately();
@@ -165,7 +168,7 @@ class SchedulerCommand extends Command
                     $this->executeCommand($command);
                 }
 
-                if ($this->exceededMaxRuntime()) {
+                if ($this->isMaxRuntimeExceeded()) {
                     break;
                 }
             } catch (\Exception $e) {
@@ -230,7 +233,7 @@ class SchedulerCommand extends Command
     protected function checkActiveCommands(): void
     {
         $activeCount = count($this->activeCommands);
-        $this->writeDebugLine("Method checkActiveCommands found {$activeCount} active commands.");
+        $this->writeDebugLine("SchedulerCommand::checkActiveCommands found {$activeCount} active commands.");
         foreach ($this->activeCommands as $index => $ac) {
             if ($ac->getProcess()->isRunning()) {
                 // Keep the output and error updated if verbose
@@ -255,9 +258,11 @@ class SchedulerCommand extends Command
             $scheduledCommand = $this->commandRepository->findById($ac->getScheduledCommand()->getId());
 
             if ($scheduledCommand === null) {
-                $this->writeDebugLine("<error>ScheduledCommand entity not found for ID {$ac->getScheduledCommand()->getId()} when terminate.</error>");
+                $this->writeDebugLine(
+                    "<error>SchedulerCommand::checkActiveCommands ScheduledCommand entity not found for ID {$ac->getScheduledCommand()->getId()} when terminate.</error>"
+                );
             } else {
-                $this->writeDebugLine("Command ID {$scheduledCommand->getId()} has terminated with code {$process->getExitCode()}.");
+                $this->writeDebugLine("SchedulerCommand::checkActiveCommands Command ID {$scheduledCommand->getId()} has terminated with code {$process->getExitCode()}.");
             }
 
             if (null !== $scheduledCommand) {
@@ -384,6 +389,7 @@ class SchedulerCommand extends Command
     protected function cleanUpOnceOnlyCommands(): void
     {
         if ($this->deleteOldJobsAfter > 0) {
+            $this->writeDebugLine("SchedulerCommand::cleanUpOnceOnlyCommands cleaning deleteOldJobsAfter(days):{$this->deleteOldJobsAfter}.");
             $this->commandRepository->cleanUpOnceOnlyCommands($this->deleteOldJobsAfter);
         }
     }
