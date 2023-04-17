@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xact\CommandScheduler\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
@@ -106,6 +107,11 @@ class ScheduledCommand
     private ?\DateTime $retryAt = null;
 
     /**
+     * @ORM\Column(name="CreatedAt", type="datetime", nullable=true)
+     */
+    private ?\DateTime $createdAt;
+
+    /**
      * @ORM\Column(name="Status", type="string", length=20, nullable=false)
      */
     private string $status = self::STATUS_PENDING;
@@ -162,6 +168,7 @@ class ScheduledCommand
         $this->arguments = $arguments ?? [];
         $this->data = $data;
         $this->commandHistory = new ArrayCollection();
+        $this->createdAt = new DateTime();
     }
 
     public function getId(): ?int
@@ -370,6 +377,18 @@ class ScheduledCommand
     public function setRetryAt(?\DateTime $retryAt): self
     {
         $this->retryAt = $retryAt;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTime $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

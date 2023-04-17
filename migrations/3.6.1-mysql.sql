@@ -1,0 +1,2 @@
+ALTER TABLE ScheduledCommand
+ADD COLUMN `CreatedAt` datetime NULL DEFAULT CURRENT_TIMESTAMP AFTER RetryAt;

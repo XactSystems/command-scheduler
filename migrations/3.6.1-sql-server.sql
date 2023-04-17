@@ -1,0 +1,2 @@
+ALTER TABLE [ScheduledCommand]
+ADD [CreatedAt] [DATETIME] NULL DEFAULT (GETDATE());
