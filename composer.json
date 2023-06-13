@@ -1,7 +1,7 @@
 {
     "name": "xactsystems/command-scheduler",
     "description": "A Symfony command scheduler.",
-    "version": "4.4.7",
+    "version": "4.5.0",
     "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
@@ -24,11 +24,11 @@
     "require": {
         "php": "^7.4",
         "doctrine/doctrine-bundle": "^2.1",
-        "doctrine/orm": "^2.7",
-        "symfony/asset": "^4.4",
-        "symfony/form": "^4.4",
-        "symfony/process": "^4.4",
-        "symfony/twig-bundle": "^4.4",
+        "doctrine/orm": "^2.10",
+        "symfony/asset": "^4.4||^5.4",
+        "symfony/form": "^4.4||^5.4",
+        "symfony/process": "^4.4||^5.4",
+        "symfony/twig-bundle": "^4.4||^5.4",
         "symfony/yaml": "*",
         "dragonmantank/cron-expression": "^3.0",
         "sensio/framework-extra-bundle": "^6.2"

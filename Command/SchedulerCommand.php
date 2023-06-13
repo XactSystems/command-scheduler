@@ -390,7 +390,7 @@ class SchedulerCommand extends Command
     {
         if ($this->deleteOldJobsAfter > 0) {
             $this->writeDebugLine("SchedulerCommand::cleanUpOnceOnlyCommands cleaning deleteOldJobsAfter(days):{$this->deleteOldJobsAfter}.");
-            $this->commandRepository->cleanUpOnceOnlyCommands($this->deleteOldJobsAfter);
+            $this->commandRepository->cleanUpOnceOnlyCommands($this->deleteOldJobsAfter, $this->idleTime);
         }
     }
 
