@@ -49,7 +49,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
             "SELECT c
             FROM {$this->commandEntity} c
             WHERE c.disabled = false
-            AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP())
+            AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP() OR c.retryAt <= CURRENT_TIMESTAMP())
             AND c.status = 'PENDING'
             ORDER BY c.priority DESC"
         )->getResult();
