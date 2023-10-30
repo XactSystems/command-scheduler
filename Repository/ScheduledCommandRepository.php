@@ -6,7 +6,7 @@ namespace Xact\CommandScheduler\Repository;
 
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Entity\ScheduledCommandHistory;
 
@@ -49,7 +49,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
             "SELECT c
             FROM {$this->commandEntity} c
             WHERE c.disabled = false
-            AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP())
+            AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP() OR c.retryAt <= CURRENT_TIMESTAMP())
             AND c.status = 'PENDING'
             ORDER BY c.priority DESC"
         )->getResult();
@@ -73,39 +73,47 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     /**
      * Clean up old once-only commands
      */
-    public function cleanUpOnceOnlyCommands(int $afterDays = 60): void
+    public function cleanUpOnceOnlyCommands(int $afterDays = 60, int $idleTime = 5): void
     {
+        $startTime = time();
         $purgeDate = new DateTime("-{$afterDays} day");
         $em = $this->getEntityManager();
 
         $em->beginTransaction();
         try {
             /**
+             * Get a list of command ids that we need to purge.
              * DQL does not support DELETE with JOIN so we need to derive a list of command ids to delete
-             *
-             * Get a list of command ids that we need to purge
              */
-            $purgeCommands = $this->getEntityManager()->createQuery(
-                "SELECT c.id
-                FROM {$this->commandEntity} c
-                WHERE c.disabled = true AND COALESCE(c.cronExpression, '') = '' AND c.lastRunAt < :purgeDate"
-            )->setParameter('purgeDate', $purgeDate)
-            ->getResult();
+            while (true) {
+                $commandIds = $this->getEntityManager()->createQuery(
+                    "SELECT c.id
+                    FROM {$this->commandEntity} c
+                    WHERE c.disabled = true AND COALESCE(c.cronExpression, '') = '' AND c.lastRunAt < :purgeDate"
+                )   ->setParameter('purgeDate', $purgeDate)
+                    ->setMaxResults(50)
+                    ->getResult();
+                if (count($commandIds) === 0) {
+                    break;
+                }
 
-            foreach ($purgeCommands as $cmd) {
-                // Delete the command history records
                 $this->getEntityManager()->createQuery(
                     "DELETE {$this->historyEntity} h
-                    WHERE h.scheduledCommand=:cmd"
-                )->setParameter('cmd', $cmd['id'])
-                ->execute();
+                    WHERE h.scheduledCommand IN(:idList)"
+                )   ->setParameter('idList', $commandIds)
+                    ->execute();
 
                 // And then the command
                 $this->getEntityManager()->createQuery(
                     "DELETE {$this->commandEntity} c
-                    WHERE c.id=:cmd"
-                )->setParameter('cmd', $cmd['id'])
+                    WHERE c.id IN(:idList)"
+                )->setParameter('idList', $commandIds)
                 ->execute();
+
+                // Do not process deletes for more than the idle time
+                if ((time() - $startTime) >= $idleTime) {
+                    break;
+                }
             }
 
             $em->flush();
