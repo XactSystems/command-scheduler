@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Xact\CommandScheduler\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +14,8 @@ use Xact\CommandScheduler\Scheduler\CommandScheduler;
 
 class CommandSchedulerController extends AbstractController
 {
-    /**
-     * @Route("/command-scheduler/list/{completed}", name="xact_command_scheduler_list", options={"completed"=false})
-     * @Route("/command-scheduler/list")
-     */
+    #[Route(path: '/command-scheduler/list/{completed}', name: 'xact_command_scheduler_list', options: ['completed' => false])]
+    #[Route(path: '/command-scheduler/list/')]
     public function list(CommandScheduler $scheduler, bool $completed = false): Response
     {
         return $this->render('@XactCommandScheduler/index.html.twig', [
@@ -27,10 +24,7 @@ class CommandSchedulerController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/command-scheduler/history/{id}", name="xact_command_scheduler_history")
-     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
-     */
+    #[Route(path: '/command-scheduler/history/{id}', name: 'xact_command_scheduler_history')]
     public function history(ScheduledCommand $command): Response
     {
         return $this->render('@XactCommandScheduler/history.html.twig', [
@@ -38,12 +32,7 @@ class CommandSchedulerController extends AbstractController
         ]);
     }
 
-    /**
-     * Edit a scheduled command
-     *
-     * @Route("/command-scheduler/edit/{id}", name="xact_command_scheduler_edit")
-     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
-     */
+    #[Route(path: '/command-scheduler/edit/{id}', name: 'xact_command_scheduler_edit')]
     public function edit(Request $request, ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
         $form = $this->createForm(ScheduledCommandForm::class, $command);
@@ -66,12 +55,7 @@ class CommandSchedulerController extends AbstractController
         ]);
     }
 
-    /**
-     * Delete a scheduled command
-     *
-     * @Route("/command-scheduler/delete/{id}", name="xact_command_scheduler_delete")
-     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
-     */
+    #[Route(path: '/command-scheduler/delete/{id}', name: 'xact_command_scheduler_delete')]
     public function delete(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
         $scheduler->delete($command);
@@ -81,15 +65,10 @@ class CommandSchedulerController extends AbstractController
         return $this->redirectToRoute('xact_command_scheduler_list');
     }
 
-    /**
-     * Disabled/enable a scheduled command
-     *
-     * @Route("/command-scheduler/disable/{id}", name="xact_command_scheduler_disable")
-     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
-     */
+    #[Route(path: '/command-scheduler/disable/{id}', name: 'xact_command_scheduler_disable')]
     public function disable(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
-        $scheduler->disable($command->getId(), !$command->getDisabled());
+        $scheduler->disable((int)$command->getId(), !$command->getDisabled());
 
         $disabledText = $command->getDisabled() ? 'disabled' : 'enabled';
         $this->addFlash('success', "The schedule for command '{$command->getCommand()}' has been {$disabledText}.");
@@ -97,26 +76,17 @@ class CommandSchedulerController extends AbstractController
         return $this->redirectToRoute('xact_command_scheduler_list');
     }
 
-    /**
-     * Immediately run a scheduled command
-     *
-     * @Route("/command-scheduler/run/{id}", name="xact_command_scheduler_run")
-     * @ParamConverter("command", class="Xact\CommandScheduler\Entity\ScheduledCommand")
-     */
+    #[Route(path: '/command-scheduler/run/{id}', name: 'xact_command_scheduler_run')]
     public function run(ScheduledCommand $command, CommandScheduler $scheduler): Response
     {
-        $scheduler->runImmediately($command->getId());
+        $scheduler->runImmediately((int)$command->getId());
 
         $this->addFlash('success', "The command '{$command->getCommand()} has been scheduled to run immediately.'");
 
         return $this->redirectToRoute('xact_command_scheduler_list');
     }
 
-    /**
-     * Create a new scheduled command
-     *
-     * @Route("/command-scheduler/new", name="xact_command_scheduler_new")
-     */
+    #[Route(path: '/command-scheduler/new', name: 'xact_command_scheduler_new')]
     public function new(Request $request, CommandScheduler $scheduler): Response
     {
         $command = new ScheduledCommand();

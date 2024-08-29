@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 class XactCommandSchedulerExtension extends ConfigurableExtension
 {
     /**
-     * @param mixed[] $mergedConfig
+     * @param array<string, bool|int|string> $mergedConfig
      */
     public function loadInternal(array $mergedConfig, ContainerBuilder $container): void
     {

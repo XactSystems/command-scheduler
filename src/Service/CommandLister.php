@@ -18,7 +18,7 @@ class CommandLister
     }
 
     /**
-     * @return string[]
+     * @return array<string, string|null>
      */
     public function getCommandChoices(): array
     {

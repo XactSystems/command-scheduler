@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xact\CommandScheduler\Scheduler;
 
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Repository\ScheduledCommandRepository;
 
@@ -28,7 +29,11 @@ class CommandScheduler
      */
     public function get(int $id): ScheduledCommand
     {
-        return $this->commandRepository->findById($id);
+        $command = $this->commandRepository->findById($id);
+        if (!$command instanceof ScheduledCommand) {
+            throw new InvalidArgumentException("ScheduledCommand entity not found for id '{$id}'.");
+        }
+        return $command;
     }
 
     /**

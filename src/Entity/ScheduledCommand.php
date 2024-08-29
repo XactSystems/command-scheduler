@@ -155,6 +155,7 @@ class ScheduledCommand
     private ?self $originalCommand = null;
 
     /**
+     * @var \Doctrine\Common\Collections\Collection<int, \Xact\CommandScheduler\Entity\ScheduledCommandHistory>
      * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade={"all"}, orphanRemoval=true)
      */
     private Collection $commandHistory;
@@ -453,11 +454,17 @@ class ScheduledCommand
         return $this;
     }
 
+    /**
+     * @return \Doctrine\Common\Collections\Collection<int, \Xact\CommandScheduler\Entity\ScheduledCommandHistory>
+     */
     public function getCommandHistory(): Collection
     {
         return $this->commandHistory;
     }
 
+    /**
+     * @param \Doctrine\Common\Collections\Collection<int, \Xact\CommandScheduler\Entity\ScheduledCommandHistory> $commandHistory
+     */
     public function setCommandHistory(Collection $commandHistory): self
     {
         $this->commandHistory = $commandHistory;

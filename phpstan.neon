@@ -1,0 +1,15 @@
+parameters:
+    level: 9
+    treatPhpDocTypesAsCertain: false
+    #checkGenericClassInNonGenericObjectType: false
+
+    #bootstrapFiles:
+        # Prevent PHPUnit\Framework\TestCase from being reported as not found
+    #    - vendor/bin/.phpunit/phpunit/vendor/autoload.php
+
+    paths:
+        - src
+        - tests
+
+    ignoreErrors:
+        - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\:\:booleanNode\(\).#'
