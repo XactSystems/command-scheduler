@@ -12,15 +12,16 @@ use Xact\CommandScheduler\Entity\ScheduledCommandHistory;
 
 /**
  * ScheduledCommand repository class
+ *
+ * @extends \Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository<\Xact\CommandScheduler\Entity\ScheduledCommand>
  */
 class ScheduledCommandRepository extends ServiceEntityRepository
 {
-    protected string $commandEntity = ScheduledCommand::class;
     protected string $historyEntity = ScheduledCommandHistory::class;
 
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, $this->commandEntity);
+        parent::__construct($registry, ScheduledCommand::class);
     }
 
     /**
@@ -35,7 +36,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
     // phpcs:ignore
     public function findById(int $id, $lockMode = null, $lockVersion = null): ?ScheduledCommand
     {
-        return $this->getEntityManager()->find($this->commandEntity, $id, $lockMode, $lockVersion);
+        return $this->getEntityManager()->find($this->getClassName(), $id, $lockMode, $lockVersion);
     }
 
     /**
@@ -45,9 +46,10 @@ class ScheduledCommandRepository extends ServiceEntityRepository
      */
     public function getActiveCommands(): array
     {
+        /** @var ScheduledCommand[] */
         return $this->getEntityManager()->createQuery(
             "SELECT c
-            FROM {$this->commandEntity} c
+            FROM {$this->getClassName()} c
             WHERE c.disabled = false
             AND (c.runImmediately = true OR COALESCE(c.cronExpression, '') != '' OR c.runAt <= CURRENT_TIMESTAMP() OR c.retryAt <= CURRENT_TIMESTAMP())
             AND c.status = 'PENDING'
@@ -62,9 +64,10 @@ class ScheduledCommandRepository extends ServiceEntityRepository
      */
     public function getCompletedCommands(): array
     {
+        /** @var ScheduledCommand[] */
         return $this->getEntityManager()->createQuery(
             "SELECT c
-            FROM {$this->commandEntity} c
+            FROM {$this->getClassName()} c
             WHERE c.disabled = true
             ORDER BY c.priority DESC, c.lastRunAt DESC"
         )->getResult();
@@ -86,9 +89,10 @@ class ScheduledCommandRepository extends ServiceEntityRepository
              * DQL does not support DELETE with JOIN so we need to derive a list of command ids to delete
              */
             while (true) {
+                /** @var int[] */
                 $commandIds = $this->getEntityManager()->createQuery(
                     "SELECT c.id
-                    FROM {$this->commandEntity} c
+                    FROM {$this->getClassName()} c
                     WHERE c.disabled = true AND COALESCE(c.cronExpression, '') = '' AND c.lastRunAt < :purgeDate"
                 )   ->setParameter('purgeDate', $purgeDate)
                     ->setMaxResults(50)
@@ -105,7 +109,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
 
                 // And then the command
                 $this->getEntityManager()->createQuery(
-                    "DELETE {$this->commandEntity} c
+                    "DELETE {$this->getClassName()} c
                     WHERE c.id IN(:idList)"
                 )->setParameter('idList', $commandIds)
                 ->execute();

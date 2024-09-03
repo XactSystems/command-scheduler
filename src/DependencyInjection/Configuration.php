@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xact\CommandScheduler\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -13,6 +14,7 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('xact_command_scheduler');
         $rootNode = $treeBuilder->getRootNode();
+        assert($rootNode instanceof ArrayNodeDefinition);
 
         $rootNode
             ->children()

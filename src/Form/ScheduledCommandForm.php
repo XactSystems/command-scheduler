@@ -31,6 +31,8 @@ class ScheduledCommandForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $command = $builder->getData();
+        assert($command instanceof ScheduledCommand);
+
         $argumentsJson = json_encode($command->getArguments());
         $builder->add('id', HiddenType::class)
             ->add('description', TextType::class, ['label' => 'Description', 'required' => true])
@@ -50,6 +52,7 @@ class ScheduledCommandForm extends AbstractType
             FormEvents::PRE_SUBMIT,
             function (FormEvent $event): void {
                 $formData = $event->getData();
+                assert(is_array($formData));
                 $form = $event->getForm();
                 if (array_key_exists('arguments', $formData)) {
                     $formData['arguments'] = json_decode($formData['arguments']);

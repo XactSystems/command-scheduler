@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
+use Xact\Cast\Cast;
 use Xact\CommandScheduler\CommandSchedulerFactory;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Repository\ScheduledCommandRepository;
@@ -51,7 +52,7 @@ class SchedulerCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription('Schedules commands to be executed via cron expressions')
             ->addOption('max-runtime', 'r', InputOption::VALUE_OPTIONAL, 'The maximum runtime in seconds. 0 runs forever.', 0)
@@ -63,21 +64,21 @@ class SchedulerCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $this->verbosity = $output->getVerbosity();
         $this->input = $input;
         $this->output = $output;
-        $this->maxRuntime = (int) $input->getOption('max-runtime');
+        $this->maxRuntime = Cast::intval($input->getOption('max-runtime'));
         if ($this->maxRuntime < 0) {
             throw new InvalidArgumentException('The maximum runtime must be greater than or equal to zero.');
         }
 
-        $this->idleTime = (int) $input->getOption('idle-time');
+        $this->idleTime = Cast::intval($input->getOption('idle-time'));
         if ($this->idleTime <= 0) {
             throw new InvalidArgumentException('Seconds to sleep when idle must be greater than zero.');
         }
-        $this->deleteOldJobsAfter = (int) $input->getOption('delete-old-jobs-after');
+        $this->deleteOldJobsAfter = Cast::intval($input->getOption('delete-old-jobs-after'));
         if ($this->deleteOldJobsAfter < 0) {
             throw new InvalidArgumentException('Delete old jobs must be greater than or equal to zero.');
         }
@@ -90,13 +91,13 @@ class SchedulerCommand extends Command
      *
      * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->startTime = time();
 
         $this->runCommands();
 
-        return 0;
+        return self::SUCCESS;
     }
 
     /**
@@ -255,7 +256,7 @@ class SchedulerCommand extends Command
             }
 
             $process = $ac->getProcess();
-            $scheduledCommand = $this->commandRepository->findById($ac->getScheduledCommand()->getId());
+            $scheduledCommand = $this->commandRepository->findById((int)$ac->getScheduledCommand()->getId());
 
             if ($scheduledCommand === null) {
                 $this->writeDebugLine(
