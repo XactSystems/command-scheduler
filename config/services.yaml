@@ -17,31 +17,31 @@ services:
     Xact\CommandScheduler\Command\:
         autowire: true
         public: true
-        resource: '../../Command/*'
+        resource: '../src/Command/*'
         tags: [command_handler]
 
     Xact\CommandScheduler\Controller\:
         public: true
         autowire: true
-        resource: '../../Controller/*'
+        resource: '../src/Controller/*'
 
     Xact\CommandScheduler\Form\:
         public: true
         autowire: true
-        resource: '../../Form/*'
+        resource: '../src/Form/*'
 
     Xact\CommandScheduler\Repository\:
         public: true
         autowire: true
-        resource: '../../Repository/*'
+        resource: '../src/Repository/*'
 
     Xact\CommandScheduler\Scheduler\:
         public: true
         autowire: true
-        resource: '../../Scheduler/*'
-        exclude: '../../Scheduler/ActiveCommand.php'
+        resource: '../src/Scheduler/*'
+        exclude: '../src/Scheduler/ActiveCommand.php'
 
     Xact\CommandScheduler\Service\:
         public: true
         autowire: true
-        resource: '../../Service/*'
+        resource: '../src/Service/*'

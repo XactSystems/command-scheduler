@@ -1,0 +1,16 @@
+files:
+    '%CONFIG_DIR%/bundles.php':
+        type: php_array
+        entries:
+            Xact\CommandScheduler\XactCommandSchedulerBundle:
+                dev: true
+                test: true
+        filters:
+            keys: [class_constant]
+            values: [single_line_array]
+
+    '%CONFIG_DIR%/routes/xact_command_scheduler.yaml':
+        type: yaml
+        content: |
+            xact_command_scheduler:
+                resource: "@XactCommandSchedulerBundle/config/routes.yaml"
