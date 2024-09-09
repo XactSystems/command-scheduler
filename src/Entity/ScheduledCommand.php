@@ -9,12 +9,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * ScheduledCommand
- *
- * @ORM\Table(name="ScheduledCommand")
- * @ORM\Entity(repositoryClass="Xact\CommandScheduler\Repository\ScheduledCommandRepository")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'ScheduledCommand')]
 class ScheduledCommand
 {
     public const STATUS_PENDING = 'PENDING';
@@ -23,141 +19,93 @@ class ScheduledCommand
     public const STATUS_FAILED = 'FAILED';
     public const STATUS_RETRIES_EXCEEDED = 'RETRIES_EXCEEDED';
 
-    /**
-     * @ORM\Column(name="ID", type="bigint")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+    #[ORM\Column(name: 'ID', type: 'bigint')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column(name="Description", type="string", nullable=true)
-     */
+    #[ORM\Column(name: 'Description', type: 'string', nullable: true)]
     private ?string $description = null;
 
-    /**
-     * @ORM\Column(name="Command", type="string")
-     */
+    #[ORM\Column(name: 'Command', type: 'string')]
     private string $command = '';
 
     /**
      * @var mixed[]|null
-     * @ORM\Column(name="Arguments", type="json", nullable=true)
      */
+    #[ORM\Column(name: 'Arguments', type: 'json', nullable: true)]
     private ?array $arguments = null;
 
-    /**
-     * @ORM\Column(name="Data", type="string", nullable=true)
-     */
+    #[ORM\Column(name: 'Data', type: 'string', nullable: true)]
     private ?string $data = null;
 
-    /**
-     * @ORM\Column(name="ClearData", type="boolean")
-     */
+    #[ORM\Column(name: 'ClearData', type: 'boolean')]
     private bool $clearData = true;
 
-    /**
-     * @ORM\Column(name="CronExpression", type="string", nullable=true)
-     */
+    #[ORM\Column(name: 'CronExpression', type: 'string', nullable: true)]
     private ?string $cronExpression = null;
 
-    /**
-     * @ORM\Column(name="RunAt", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'RunAt', type: 'datetime', nullable: true)]
     private ?\DateTime $runAt = null;
 
-    /**
-     * @ORM\Column(name="Priority", type="integer")
-     */
+    #[ORM\Column(name: 'Priority', type: 'integer')]
     private int $priority = 1;
 
-    /**
-     * @ORM\Column(name="Disabled", type="boolean")
-     */
+    #[ORM\Column(name: 'Disabled', type: 'boolean')]
     private bool $disabled = false;
 
-    /**
-     * @ORM\Column(name="RunImmediately", type="boolean")
-     */
+    #[ORM\Column(name: 'RunImmediately', type: 'boolean')]
     private bool $runImmediately = true;
 
-    /**
-     * @ORM\Column(name="RetryOnFail", type="boolean")
-     */
+    #[ORM\Column(name: 'RetryOnFail', type: 'boolean')]
     private bool $retryOnFail = false;
 
-    /**
-     * @ORM\Column(name="RetryDelay", type="integer")
-     */
+    #[ORM\Column(name: 'RetryDelay', type: 'integer')]
     private int $retryDelay = 60;
 
-    /**
-     * @ORM\Column(name="RetryMaxAttempts", type="integer")
-     */
+    #[ORM\Column(name: 'RetryMaxAttempts', type: 'integer')]
     private int $retryMaxAttempts = 60;
 
-    /**
-     * @ORM\Column(name="RetryCount", type="integer")
-     */
+    #[ORM\Column(name: 'RetryCount', type: 'integer')]
     private int $retryCount = 0;
 
-    /**
-     * @ORM\Column(name="RetryAt", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'RetryAt', type: 'datetime', nullable: true)]
     private ?\DateTime $retryAt = null;
 
-    /**
-     * @ORM\Column(name="CreatedAt", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'CreatedAt', type: 'datetime', nullable: true)]
     private ?\DateTime $createdAt;
 
-    /**
-     * @ORM\Column(name="Status", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'Status', type: 'string', length: 20)]
     private string $status = self::STATUS_PENDING;
 
-    /**
-     * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'LastRunAt', type: 'datetime', nullable: true)]
     private ?\DateTime $lastRunAt = null;
 
-    /**
-     * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
-     */
+    #[ORM\Column(name: 'LastResultCode', type: 'integer', nullable: true)]
     private ?int $lastResultCode = null;
 
-    /**
-     * @ORM\Column(name="LastResult", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'LastResult', type: 'text', nullable: true)]
     private ?string $lastResult = null;
 
-    /**
-     * @ORM\Column(name="LastError", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'LastError', type: 'text', nullable: true)]
     private ?string $lastError = null;
 
-    /**
-     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
-     * @ORM\JoinColumn(name="OnSuccessCommandID", referencedColumnName="ID", nullable=true)
-     */
+    #[ORM\OneToOne(targetEntity: ScheduledCommand::class, fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'OnSuccessCommandID', referencedColumnName: 'ID', nullable: true)]
     private ?self $onSuccessCommand = null;
 
-    /**
-     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
-     * @ORM\JoinColumn(name="OnFailureCommandID", referencedColumnName="ID", nullable=true)
-     */
+    #[ORM\OneToOne(targetEntity: ScheduledCommand::class, fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'OnFailureCommandID', referencedColumnName: 'ID', nullable: true)]
     private ?self $onFailureCommand = null;
 
-    /**
-     * @ORM\OneToOne(targetEntity="ScheduledCommand", fetch="LAZY")
-     * @ORM\JoinColumn(name="OriginalCommandID", referencedColumnName="ID", nullable=true)
-     */
+    #[ORM\OneToOne(targetEntity: ScheduledCommand::class, fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'OriginalCommandID', referencedColumnName: 'ID', nullable: true)]
     private ?self $originalCommand = null;
 
     /**
      * @var \Doctrine\Common\Collections\Collection<int, \Xact\CommandScheduler\Entity\ScheduledCommandHistory>
-     * @ORM\OneToMany(targetEntity="ScheduledCommandHistory", mappedBy="scheduledCommand", cascade={"all"}, orphanRemoval=true)
      */
+    #[ORM\OneToMany(targetEntity: ScheduledCommandHistory::class, mappedBy: 'scheduledCommand', cascade: ['all'], orphanRemoval: true)]
     private Collection $commandHistory;
 
     /**
