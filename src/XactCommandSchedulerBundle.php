@@ -52,7 +52,6 @@ class XactCommandSchedulerBundle extends AbstractBundle
     // phpcs:ignore SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        //$container->import('../config/routes.yaml');
         $container->import('../config/services.yaml');
     }
 }
