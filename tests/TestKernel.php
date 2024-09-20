@@ -8,7 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class TestKernel extends Kernel
 {
@@ -20,35 +19,11 @@ class TestKernel extends Kernel
     }
 
     /**
-     * @inheritDoc
-     */
-    public function registerBundles()
-    {
-        $bundles = [
-            \Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class,
-            \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class,
-            \Symfony\Bundle\FrameworkBundle\FrameworkBundle::class,
-            \Symfony\Bundle\TwigBundle\TwigBundle::class,
-            \Xact\CommandScheduler\XactCommandSchedulerBundle::class,
-        ];
-
-        foreach ($bundles as $class) {
-            yield new $class();
-        }
-    }
-
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
-    {
-        $confDir = $this->getProjectDir() . '/Resources/config';
-        $routes->import($confDir . '/routing.yaml');
-    }
-
-    /**
      * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader): void
     {
-        $confDir = $this->getProjectDir() . '/Resources/config';
+        $confDir = $this->getProjectDir() . '/config';
         $loader->load($confDir . '/{test}/*.yaml', 'glob');
     }
 }

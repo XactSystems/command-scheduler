@@ -154,7 +154,7 @@ class SchedulerCommand extends Command
             try {
                 $execute = $command->getRunImmediately();
                 if (!$execute && !empty($command->getCronExpression())) {
-                    $cron = CronExpression::factory($command->getCronExpression());
+                    $cron = new CronExpression($command->getCronExpression());
                     $lastRun = $command->getLastRunAt() ?? new \DateTime('1970-01-01');
                     if ($cron->getNextRunDate($lastRun) <= $tNow) {
                         $execute = true;

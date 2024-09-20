@@ -34,7 +34,7 @@ class ScheduledCommandRepository extends ServiceEntityRepository
      * @param int|null $lockVersion The lock version.
      */
     // phpcs:ignore
-    public function findById(int $id, $lockMode = null, $lockVersion = null): ?ScheduledCommand
+    public function findById(int $id, ?int $lockMode = null, ?int $lockVersion = null): ?ScheduledCommand
     {
         return $this->getEntityManager()->find($this->getClassName(), $id, $lockMode, $lockVersion);
     }

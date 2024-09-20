@@ -13,6 +13,7 @@ use Xact\CommandScheduler\Scheduler\CommandScheduler;
 class CommandSchedulerTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
+    private CommandScheduler $commandScheduler;
 
     /**
      * @group scheduler
@@ -24,13 +25,12 @@ class CommandSchedulerTest extends KernelTestCase
         $scheduledCommand->setCommand('test:test-command-1');
         $scheduledCommand->setRunImmediately(true);
 
-        $commandScheduler = new CommandScheduler($this->entityManager);
-        $commandScheduler->set($scheduledCommand);
+        $this->commandScheduler->set($scheduledCommand);
         $this->assertNotEmpty($scheduledCommand->getId());
 
         $scheduledCommand->setDescription('Changed description');
-        $commandScheduler->set($scheduledCommand);
-        $retrievedCommand = $commandScheduler->get($scheduledCommand->getId());
+        $this->commandScheduler->set($scheduledCommand);
+        $retrievedCommand = $this->commandScheduler->get($scheduledCommand->getId());
         $this->assertEquals($retrievedCommand->getDescription(), 'Changed description');
     }
 
@@ -44,11 +44,10 @@ class CommandSchedulerTest extends KernelTestCase
         $scheduledCommand->setCommand('test:test-command-2');
         $scheduledCommand->setRunImmediately(true);
 
-        $commandScheduler = new CommandScheduler($this->entityManager);
-        $commandScheduler->set($scheduledCommand);
+        $this->commandScheduler->set($scheduledCommand);
         $this->assertNotEmpty($scheduledCommand->getId());
 
-        $commandScheduler->delete($scheduledCommand);
+        $this->commandScheduler->delete($scheduledCommand);
         $this->assertEmpty($scheduledCommand->getId());
     }
 
@@ -62,19 +61,13 @@ class CommandSchedulerTest extends KernelTestCase
         $scheduledCommand->setCommand('test:test-command-3');
         $scheduledCommand->setCronExpression('*/5 * * * *');
 
-        $commandScheduler = new CommandScheduler($this->entityManager);
-        $initialCount = count($commandScheduler->getActive());
+        $initialCount = count($this->commandScheduler->getActive());
 
-        $commandScheduler->set($scheduledCommand);
+        $this->commandScheduler->set($scheduledCommand);
         $this->assertNotEmpty($scheduledCommand->getId());
 
-        $updatedCount = count($commandScheduler->getActive());
+        $updatedCount = count($this->commandScheduler->getActive());
         $this->assertEquals($updatedCount, $initialCount + 1);
-    }
-
-    protected static function getKernelClass(): string
-    {
-        return TestKernel::class;
     }
 
     /**
@@ -84,7 +77,8 @@ class CommandSchedulerTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $this->commandScheduler = static::getContainer()->get(CommandScheduler::class);
+        $this->entityManager = static::getContainer()->get('doctrine')->getManager();
 
         $schemaTool = new SchemaTool($this->entityManager);
         $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();

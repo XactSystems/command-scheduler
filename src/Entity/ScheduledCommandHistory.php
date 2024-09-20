@@ -6,45 +6,29 @@ namespace Xact\CommandScheduler\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * ScheduledCommand
- *
- * @ORM\Table(name="ScheduledCommandHistory")
- * @ORM\Entity()
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'ScheduledCommandHistory')]
 class ScheduledCommandHistory
 {
-    /**
-     * @ORM\Column(name="ID", type="bigint")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
+    #[ORM\Column(name: 'ID', type: 'bigint')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="ScheduledCommand", inversedBy="commandHistory")
-     * @ORM\JoinColumn(name="ScheduledCommandID", referencedColumnName="ID")
-     */
+    #[ORM\ManyToOne(targetEntity: ScheduledCommand::class, inversedBy: 'commandHistory')]
+    #[ORM\JoinColumn(name: 'ScheduledCommandID', referencedColumnName: 'ID')]
     private ScheduledCommand $scheduledCommand;
 
-    /**
-     * @ORM\Column(name="LastRunAt", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'LastRunAt', type: 'datetime', nullable: true)]
     private ?\DateTime $lastRunAt = null;
 
-    /**
-     * @ORM\Column(name="LastResultCode", type="integer", nullable=true)
-     */
+    #[ORM\Column(name: 'LastResultCode', type: 'integer', nullable: true)]
     private ?int $lastResultCode = null;
 
-    /**
-     * @ORM\Column(name="LastResult", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'LastResult', type: 'string', nullable: true)]
     private ?string $lastResult = null;
 
-    /**
-     * @ORM\Column(name="LastError", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'LastError', type: 'string', nullable: true)]
     private ?string $lastError = null;
 
 

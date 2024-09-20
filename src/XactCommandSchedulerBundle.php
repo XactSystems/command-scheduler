@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xact\CommandScheduler;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -13,26 +14,26 @@ class XactCommandSchedulerBundle extends AbstractBundle
 {
     public function configure(DefinitionConfigurator $definition): void
     {
-        $definition->rootNode()
-            ->children()
-                ->booleanNode('clear_data')
-                    ->info('Clear the command data after running the command. Default true')
-                    ->defaultTrue()
-                ->end()
-                ->booleanNode('retry_on_fail')
-                    ->info('Retry the command on failure. Default false')
-                    ->defaultFalse()
-                ->end()
-                ->integerNode('retry_delay')
-                    ->info('The retry period to wait in seconds, Default 60')
-                    ->defaultValue(60)
-                ->end()
-                ->integerNode('retry_max_attempts')
-                    ->info('The maximum number of reties to attempt. Default 60')
-                    ->defaultValue(60)
-                ->end()
+        $root = $definition->rootNode();
+        assert($root instanceof ArrayNodeDefinition);
+        $root->children()
+            ->booleanNode('clear_data')
+                ->info('Clear the command data after running the command. Default true')
+                ->defaultTrue()
             ->end()
-        ;
+            ->booleanNode('retry_on_fail')
+                ->info('Retry the command on failure. Default false')
+                ->defaultFalse()
+            ->end()
+            ->integerNode('retry_delay')
+                ->info('The retry period to wait in seconds, Default 60')
+                ->defaultValue(60)
+            ->end()
+            ->integerNode('retry_max_attempts')
+                ->info('The maximum number of reties to attempt. Default 60')
+                ->defaultValue(60)
+            ->end()
+        ->end();
     }
 
     /**

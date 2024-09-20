@@ -2,14 +2,13 @@
 <ruleset name="XactPSR12" namespace="XactSystems\CS\PSR12">
     <description>A custom coding standard based on PSR12</description>
 
+    <arg name="basepath" value="."/>
+    <arg name="cache" value=".phpcs-cache"/>
     <arg name="extensions" value="php,inc" />
     <arg name="colors"/>
+    <arg name="report-width" value="120" />
 
 	<exclude-pattern>vendor/*</exclude-pattern>
-
-    <!-- Check for cross-version support for PHP 7.4 and higher using PHPCompatibility. -->
-    <config name="testVersion" value="7.4-"/>
-    <rule ref="PHPCompatibility"/>
     
     <rule ref="PSR12">
 		<exclude name="Generic.Files.LineLength.TooLong"/>
@@ -47,17 +46,20 @@
     </rule>
     <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
         <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectStrictTypesFormat" />
+        <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectWhitespaceBetweenOpenTagAndDeclare" />
+        <exclude-pattern>config/bundles.php</exclude-pattern>
+        <properties>
+            <property name="declareOnFirstLine" value="false" />
+            <property name="linesCountBeforeDeclare" value="1" />
+            <property name="linesCountAfterDeclare" value="1" />
+        </properties>
     </rule>
     <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint"></rule>
     <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint"></rule>
     <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint"></rule>
     <rule ref="SlevomatCodingStandard.TypeHints.UselessConstantTypeHint"></rule>
     <rule ref="SlevomatCodingStandard.Functions.UnusedParameter"></rule>
-    <rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue">
-        <properties>
-            <property name="searchAnnotations " value="true"/>
-        </properties>
-    </rule>
+    <rule ref="SlevomatCodingStandard.Functions.UselessParameterDefaultValue"></rule>
     <rule ref="SlevomatCodingStandard.Variables.UselessVariable"></rule>
     <rule ref="SlevomatCodingStandard.Commenting.DocCommentSpacing">
         <properties>
@@ -67,6 +69,7 @@
             <property name="linesCountBetweenDifferentAnnotationsTypes" value="0"/>
         </properties>
     </rule>
+    <rule ref="SlevomatCodingStandard.Functions.StaticClosure" />
 
     <rule ref="Generic.PHP.ForbiddenFunctions">
         <properties>
@@ -85,16 +88,6 @@
                 <element key="jpeg2wbmp" value="null"/>
                 <element key="__autoload" value="null"/>
                 <!-- Deprecated Features 7.3, https://secure.php.net/manual/en/migration73.deprecated.php -->
-                <!-- Searching Strings for non-string Needle -->
-                <!--
-                <element key="strpos" value="chr"/>
-                <element key="strrpos" value="chr"/>
-                <element key="stripos" value="chr"/>
-                <element key="strstr" value="chr"/>
-                <element key="stristr" value="chr"/>
-                <element key="strchr" value="chr"/>
-                <element key="strrchr" value="chr"/>
-                -->
                 <!-- Strip-Tags Streaming -->
                 <element key="fgetss" value="fgets"/>
                 <element key="gzgets" value="gzgets"/>
@@ -118,5 +111,10 @@
             </property>
         </properties>
     </rule>
+
+    <file>config/</file>
+    <file>public/</file>
+    <file>src/</file>
+    <file>tests/</file>
 
 </ruleset>

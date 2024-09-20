@@ -6,7 +6,7 @@ namespace Xact\CommandScheduler\Tests;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
-use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Xact\CommandScheduler\Entity\ScheduledCommand;
 use Xact\CommandScheduler\Scheduler\CommandScheduler;
@@ -14,7 +14,8 @@ use Xact\CommandScheduler\Scheduler\CommandScheduler;
 class ControllerTest extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
-    private Client $client;
+    private CommandScheduler $commandScheduler;
+    private KernelBrowser $client;
 
     /**
      * @group controller
@@ -36,8 +37,7 @@ class ControllerTest extends WebTestCase
         $scheduledCommand->setCommand('test:test-command-1');
         $scheduledCommand->setCronExpression('@hourly');
 
-        $commandScheduler = new CommandScheduler($this->entityManager);
-        $commandScheduler->set($scheduledCommand);
+        $this->commandScheduler->set($scheduledCommand);
         $this->assertNotEmpty($scheduledCommand->getId());
 
         $crawler = $this->client->request('GET', "/command-scheduler/edit/{$scheduledCommand->getId()}");
@@ -81,14 +81,13 @@ class ControllerTest extends WebTestCase
         $scheduledCommand->setCronExpression('@hourly');
         $scheduledCommand->setDisabled(false);
 
-        $commandScheduler = new CommandScheduler($this->entityManager);
-        $commandScheduler->set($scheduledCommand);
+        $this->commandScheduler->set($scheduledCommand);
         $this->assertNotEmpty($scheduledCommand->getId());
 
         $crawler = $this->client->request('POST', "/command-scheduler/disable/{$scheduledCommand->getId()}");
         $this->assertContains($this->client->getResponse()->getStatusCode(), [200, 302]);
 
-        $updatedCommand = $commandScheduler->get($scheduledCommand->getId());
+        $updatedCommand = $this->commandScheduler->get($scheduledCommand->getId());
         $this->assertEquals(true, $updatedCommand->getDisabled());
     }
 
@@ -103,27 +102,24 @@ class ControllerTest extends WebTestCase
         $scheduledCommand->setCronExpression('@hourly');
         $scheduledCommand->setRunImmediately(false);
 
-        $commandScheduler = new CommandScheduler($this->entityManager);
-        $commandScheduler->set($scheduledCommand);
+        $this->commandScheduler->set($scheduledCommand);
         $this->assertNotEmpty($scheduledCommand->getId());
 
         $crawler = $this->client->request('POST', "/command-scheduler/run/{$scheduledCommand->getId()}");
         $this->assertContains($this->client->getResponse()->getStatusCode(), [200, 302]);
 
-        $updatedCommand = $commandScheduler->get($scheduledCommand->getId());
+        $updatedCommand = $this->commandScheduler->get($scheduledCommand->getId());
         $this->assertEquals(true, $updatedCommand->getRunImmediately());
-    }
-
-    protected static function getKernelClass(): string
-    {
-        return TestKernel::class;
     }
 
     protected function setUp(): void
     {
-        $this->client = static::createClient();
+        self::bootKernel();
 
-        $this->entityManager = static::$kernel->getContainer()->get('doctrine')->getManager();
+        $this->client = static::createClient();
+        $this->entityManager = static::getContainer()->get('doctrine')->getManager();
+        $this->commandScheduler = static::getContainer()->get(CommandScheduler::class);
+
 
         $schemaTool = new SchemaTool($this->entityManager);
         $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
